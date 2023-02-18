@@ -1,5 +1,6 @@
 import tkinter as tk
 from GUI_processing import *
+from tkinter import ttk
 
 
 def change_param_root(root: tk.Tk) -> None:
@@ -49,7 +50,7 @@ def create_frame_widgets(root: tk.Tk) -> tk.Frame:
     frame_widgets = tk.Frame(
         root,
         width=frame_widgets_width,
-        height=frame_widgets_height
+        # height=frame_widgets_height
 
     )
 
@@ -159,22 +160,35 @@ def draw_radiobutton(frame: tk.Frame, triangle_set, text: str) -> tk.Radiobutton
     return rbt
 
 
-def draw_listbox(frame: tk.Frame) -> tk.Listbox:
+def draw_set_treeview(frame: tk.Frame, columns: tuple[str, str]) -> ttk.Treeview:
     """
-    Функция создаем виджет списка для отображения ранее введенных точек
+    Функция создает таблицу для отображения точек
     :param frame: окно
-    :return: виджет списка
+    :param columns: заголовки таблицы
+    :return: фрейм
     """
+    treeview = ttk.Treeview(frame, columns=columns, show="headings", height=18)
 
-    list_box_set = tk.Listbox(
-        frame,
-        width=35,
-        height=19,
-        borderwidth=5,
-        font=("Courier New", 12)
-    )
+    treeview.heading(column="number", text="№")
+    treeview.heading(column="point", text="Точка")
 
-    return list_box_set
+    treeview.column("#1", width=50, anchor='center')
+    treeview.column("#2", width=128, anchor='center')
+
+    return treeview
+
+
+def draw_set_scrollbar(frame: tk.Frame, treeview: ttk.Treeview) -> ttk.Scrollbar:
+    """
+    Функция создает полосу прокрутки для отображенных точек
+    :param frame: окно
+    :param treeview: поле отображенных точек
+    :return: полосу прокрутки
+    """
+    scrollbar = ttk.Scrollbar(frame, command=treeview.yview)
+    treeview.config(yscrollcommand=scrollbar.set)
+
+    return scrollbar
 
 
 def build_interface() -> None:
@@ -220,7 +234,7 @@ def build_interface() -> None:
     btn_add_point = draw_button(frame_widgets, "Добавить точку")
     btn_add_point.config(
         command=lambda: add_point_to_desired(rbt_var, entry_x_add, entry_y_add,
-                                             listbox_first_set, listbox_second_set))
+                                             treeview_first_set, treeview_second_set))
     btn_add_point.grid(row=2, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
@@ -289,11 +303,25 @@ def build_interface() -> None:
     lbl_second_set = draw_label(frame_widgets, "Второе множество")
     lbl_second_set.grid(row=12, column=2, sticky='wens', columnspan=2)
 
-    listbox_first_set = draw_listbox(frame_widgets)
-    listbox_first_set.grid(row=13, column=0, columnspan=2, sticky='wens')
+    columns = "number", "point"
 
-    listbox_second_set = draw_listbox(frame_widgets)
-    listbox_second_set.grid(row=13, column=2, columnspan=2, sticky='wens')
+    frame_first = tk.Frame(root, bg="#FF0000")
+    frame_first.pack(side=tk.LEFT)
+
+    frame_second = tk.Frame(root, bg="#FF0000")
+    frame_second.pack(side=tk.RIGHT)
+
+    treeview_first_set = draw_set_treeview(frame_first, columns)
+    treeview_first_set.pack(side=tk.LEFT)
+
+    scroll_first = draw_set_scrollbar(frame_first, treeview_first_set)
+    scroll_first.pack(side=tk.RIGHT, fill=tk.Y)
+
+    treeview_second_set = draw_set_treeview(frame_second, columns)
+    treeview_second_set.pack(side=tk.LEFT)
+
+    scroll_second = draw_set_scrollbar(frame_second, treeview_second_set)
+    scroll_second.pack(side=tk.RIGHT, fill=tk.Y)
     # -----------------------------------------------
 
     root.mainloop()
