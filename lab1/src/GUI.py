@@ -168,7 +168,8 @@ def draw_listbox(frame: tk.Frame) -> tk.Listbox:
     list_box_set = tk.Listbox(
         frame,
         width=35,
-        height=23
+        height=23,
+        borderwidth=5
     )
 
     return list_box_set
