@@ -218,7 +218,9 @@ def build_interface() -> None:
     entry_y_add.grid(row=1, column=3, sticky='wens')
 
     btn_add_point = draw_button(frame_widgets, "Добавить точку")
-    btn_add_point.config(command=lambda: add_point_to_listbox(entry_x_add, entry_y_add, list_box_first_set))
+    btn_add_point.config(
+        command=lambda: add_point_to_desired(rbt_var, entry_x_add, entry_y_add,
+                                             listbox_first_set, listbox_second_set))
     btn_add_point.grid(row=2, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
@@ -227,11 +229,11 @@ def build_interface() -> None:
     values = "Первое множество", "Второе множество"
     rbt_var = tk.StringVar(value=values[0])
 
-    rbt = draw_radiobutton(frame_widgets, rbt_var, values[0])
-    rbt.grid(row=3, column=0, columnspan=2, sticky='wens')
+    rbt_first_set = draw_radiobutton(frame_widgets, rbt_var, values[0])
+    rbt_first_set.grid(row=3, column=0, columnspan=2, sticky='wens')
 
-    rbt = draw_radiobutton(frame_widgets, rbt_var, values[1])
-    rbt.grid(row=3, column=2, columnspan=2, sticky='wens')
+    rbt_second_set = draw_radiobutton(frame_widgets, rbt_var, values[1])
+    rbt_second_set.grid(row=3, column=2, columnspan=2, sticky='wens')
     # -----------------------------------------------
 
     # виджет удаления точки по номеру
@@ -287,11 +289,11 @@ def build_interface() -> None:
     lbl_second_set = draw_label(frame_widgets, "Второе множество")
     lbl_second_set.grid(row=12, column=2, sticky='wens', columnspan=2)
 
-    list_box_first_set = draw_listbox(frame_widgets)
-    list_box_first_set.grid(row=13, column=0, columnspan=2, sticky='wens')
+    listbox_first_set = draw_listbox(frame_widgets)
+    listbox_first_set.grid(row=13, column=0, columnspan=2, sticky='wens')
 
-    list_box_second_set = draw_listbox(frame_widgets)
-    list_box_second_set.grid(row=13, column=2, columnspan=2, sticky='wens')
+    listbox_second_set = draw_listbox(frame_widgets)
+    listbox_second_set.grid(row=13, column=2, columnspan=2, sticky='wens')
     # -----------------------------------------------
 
     root.mainloop()

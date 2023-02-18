@@ -47,18 +47,25 @@ def get_point(entry_x: tk.Entry, entry_y: tk.Entry) -> (str, str):
     return x, y
 
 
-def add_point_to_listbox(
+def add_point_to_desired(
+        string_var: tk.StringVar,
         entry_x: tk.Entry,
         entry_y: tk.Entry,
-        listbox: tk.Listbox) -> None:
+        listbox_first_set: tk.Listbox,
+        listbox_second_set: tk.Listbox) -> None:
     """
-    Функция добавляет точку в listbox
+    Функция вставляет в поле в зависимости от выбора множества
+    :param string_var: первое или второе множество
     :param entry_x: поле ввода абсциссы
     :param entry_y: поле ввода ординаты
-    :param listbox: поле, куда добавится точка
-    :return:
+    :param listbox_first_set: поле отображения точек первого множества
+    :param listbox_second_set: поле отображения точек второго множества
+    :return: None
     """
     x, y = get_point(entry_x, entry_y)
 
     if check_input_point((x, y)):
-        listbox.insert(0, str((float(x), float(y))))
+        if string_var.get() == "Первое множество":
+            listbox_first_set.insert(0, str((float(x), float(y))))
+        else:
+            listbox_second_set.insert(0, str((float(x), float(y))))
