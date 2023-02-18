@@ -198,6 +198,8 @@ def build_interface() -> None:
 
     change_param_frame_widgets(frame_widgets)
 
+    # виджеты для добавления точки
+    # -----------------------------------------------
     lbl_add_point = draw_label(frame_widgets, "Добавить точку")
     lbl_add_point.grid(row=0, column=0, columnspan=4, sticky='wens')
 
@@ -215,7 +217,10 @@ def build_interface() -> None:
 
     btn_add_point = draw_button(frame_widgets, "Добавить точку")
     btn_add_point.grid(row=2, column=0, columnspan=4, sticky='wens')
+    # -----------------------------------------------
 
+    # виджет переключения множеств
+    # -----------------------------------------------
     values = "Первое множество", "Второе множество"
     rbt_var = tk.StringVar(value=values[0])
 
@@ -224,7 +229,10 @@ def build_interface() -> None:
 
     rbt = draw_radiobutton(frame_widgets, rbt_var, values[1])
     rbt.grid(row=3, column=2, columnspan=2, sticky='wens')
+    # -----------------------------------------------
 
+    # виджет удаления точки по номеру
+    # -----------------------------------------------
     lbl_del_point = draw_label(frame_widgets, "Удалить точку")
     lbl_del_point.grid(row=4, column=0, columnspan=4, sticky='wens')
 
@@ -236,12 +244,15 @@ def build_interface() -> None:
 
     btn_del_point = draw_button(frame_widgets, "Удалить точку")
     btn_del_point.grid(row=6, column=0, columnspan=4, sticky='wens')
+    # -----------------------------------------------
 
+    # виджеты изменения точки
+    # -----------------------------------------------
     empty_lbl = draw_label(frame_widgets, "")
     empty_lbl.grid(row=7, column=0, columnspan=4, sticky='wens')
 
-    lbl_del_point = draw_label(frame_widgets, "Изменить точку")
-    lbl_del_point.grid(row=8, column=0, columnspan=4, sticky='wens')
+    lbl_change_point = draw_label(frame_widgets, "Изменить точку")
+    lbl_change_point.grid(row=8, column=0, columnspan=4, sticky='wens')
 
     label_n = draw_label(frame_widgets, "Номер точки:")
     label_n.grid(row=9, column=0, sticky='wens', columnspan=2)
@@ -263,7 +274,10 @@ def build_interface() -> None:
 
     btn_del_point = draw_button(frame_widgets, "Изменить точку")
     btn_del_point.grid(row=11, column=0, columnspan=4, sticky='wens')
+    # -----------------------------------------------
 
+    # виджеты отображения точек
+    # -----------------------------------------------
     lbl_first_set = draw_label(frame_widgets, "Первое множество")
     lbl_first_set.grid(row=12, column=0, sticky='wens', columnspan=2)
 
@@ -275,5 +289,6 @@ def build_interface() -> None:
 
     list_box_second_set = draw_listbox(frame_widgets)
     list_box_second_set.grid(row=13, column=2, columnspan=2, sticky='wens')
-
+    # -----------------------------------------------
+    
     root.mainloop()
