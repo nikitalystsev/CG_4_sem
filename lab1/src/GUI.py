@@ -1,4 +1,5 @@
 import tkinter as tk
+from GUI_processing import *
 
 
 def change_param_root(root: tk.Tk) -> None:
@@ -168,8 +169,9 @@ def draw_listbox(frame: tk.Frame) -> tk.Listbox:
     list_box_set = tk.Listbox(
         frame,
         width=35,
-        height=23,
-        borderwidth=5
+        height=19,
+        borderwidth=5,
+        font=("Courier New", 12)
     )
 
     return list_box_set
@@ -203,19 +205,20 @@ def build_interface() -> None:
     lbl_add_point = draw_label(frame_widgets, "Добавить точку")
     lbl_add_point.grid(row=0, column=0, columnspan=4, sticky='wens')
 
-    label_x = draw_label(frame_widgets, "X:")
-    label_x.grid(row=1, column=0, sticky='wens')
+    label_x_add = draw_label(frame_widgets, "X:")
+    label_x_add.grid(row=1, column=0, sticky='wens')
 
-    entry_x = draw_entry(frame_widgets)
-    entry_x.grid(row=1, column=1, sticky='wens')
+    entry_x_add = draw_entry(frame_widgets)
+    entry_x_add.grid(row=1, column=1, sticky='wens')
 
-    label_y = draw_label(frame_widgets, "Y:")
-    label_y.grid(row=1, column=2, sticky='wens')
+    label_y_add = draw_label(frame_widgets, "Y:")
+    label_y_add.grid(row=1, column=2, sticky='wens')
 
-    entry_y = draw_entry(frame_widgets)
-    entry_y.grid(row=1, column=3, sticky='wens')
+    entry_y_add = draw_entry(frame_widgets)
+    entry_y_add.grid(row=1, column=3, sticky='wens')
 
     btn_add_point = draw_button(frame_widgets, "Добавить точку")
+    btn_add_point.config(command=lambda: add_point_to_listbox(entry_x_add, entry_y_add, list_box_first_set))
     btn_add_point.grid(row=2, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
@@ -290,5 +293,5 @@ def build_interface() -> None:
     list_box_second_set = draw_listbox(frame_widgets)
     list_box_second_set.grid(row=13, column=2, columnspan=2, sticky='wens')
     # -----------------------------------------------
-    
+
     root.mainloop()
