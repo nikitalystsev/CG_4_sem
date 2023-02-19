@@ -167,13 +167,22 @@ def draw_set_treeview(frame: tk.Frame, columns: tuple[str, str]) -> ttk.Treeview
     :param columns: заголовки таблицы
     :return: фрейм
     """
-    treeview = ttk.Treeview(frame, columns=columns, show="headings", height=18)
+    treeview = ttk.Treeview(
+        frame,
+        columns=columns,
+        show="headings",
+        height=14
+    )
+
+    style_head = ttk.Style()
+    style_head.configure("Treeview.Heading", font=("Courier New", 12))
+    style_head.configure("Treeview", font=("Courier New", 9))
 
     treeview.heading(column="number", text="№")
     treeview.heading(column="point", text="Точка")
 
-    treeview.column("#1", width=50, anchor='center')
-    treeview.column("#2", width=128, anchor='center')
+    treeview.column("#1", width=30, anchor='center')
+    treeview.column("#2", width=148, anchor='center')
 
     return treeview
 
@@ -219,22 +228,22 @@ def build_interface() -> None:
     lbl_add_point = draw_label(frame_widgets, "Добавить точку")
     lbl_add_point.grid(row=0, column=0, columnspan=4, sticky='wens')
 
-    label_x_add = draw_label(frame_widgets, "X:")
-    label_x_add.grid(row=1, column=0, sticky='wens')
+    lbl_add_x = draw_label(frame_widgets, "X:")
+    lbl_add_x.grid(row=1, column=0, sticky='wens')
 
-    entry_x_add = draw_entry(frame_widgets)
-    entry_x_add.grid(row=1, column=1, sticky='wens')
+    entry_add_x = draw_entry(frame_widgets)
+    entry_add_x.grid(row=1, column=1, sticky='wens')
 
-    label_y_add = draw_label(frame_widgets, "Y:")
-    label_y_add.grid(row=1, column=2, sticky='wens')
+    lbl_add_y = draw_label(frame_widgets, "Y:")
+    lbl_add_y.grid(row=1, column=2, sticky='wens')
 
-    entry_y_add = draw_entry(frame_widgets)
-    entry_y_add.grid(row=1, column=3, sticky='wens')
+    entry_add_y = draw_entry(frame_widgets)
+    entry_add_y.grid(row=1, column=3, sticky='wens')
 
     btn_add_point = draw_button(frame_widgets, "Добавить точку")
     btn_add_point.config(
-        command=lambda: add_point_to_desired(rbt_var, entry_x_add, entry_y_add,
-                                             treeview_first_set, treeview_second_set))
+        command=lambda: add_point_to_desired(rbt_var, entry_add_x, entry_add_y,
+                                             treeview_set1, treeview_set2))
     btn_add_point.grid(row=2, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
@@ -243,11 +252,11 @@ def build_interface() -> None:
     values = "Первое множество", "Второе множество"
     rbt_var = tk.StringVar(value=values[0])
 
-    rbt_first_set = draw_radiobutton(frame_widgets, rbt_var, values[0])
-    rbt_first_set.grid(row=3, column=0, columnspan=2, sticky='wens')
+    rbt_set1 = draw_radiobutton(frame_widgets, rbt_var, values[0])
+    rbt_set1.grid(row=3, column=0, columnspan=2, sticky='wens')
 
-    rbt_second_set = draw_radiobutton(frame_widgets, rbt_var, values[1])
-    rbt_second_set.grid(row=3, column=2, columnspan=2, sticky='wens')
+    rbt_set2 = draw_radiobutton(frame_widgets, rbt_var, values[1])
+    rbt_set2.grid(row=3, column=2, columnspan=2, sticky='wens')
     # -----------------------------------------------
 
     # виджет удаления точки по номеру
@@ -255,73 +264,95 @@ def build_interface() -> None:
     lbl_del_point = draw_label(frame_widgets, "Удалить точку")
     lbl_del_point.grid(row=4, column=0, columnspan=4, sticky='wens')
 
-    label_n = draw_label(frame_widgets, "Номер точки:")
-    label_n.grid(row=5, column=0, sticky='wens', columnspan=2)
+    lbl_n_del = draw_label(frame_widgets, "Номер точки:")
+    lbl_n_del.grid(row=5, column=0, sticky='wens', columnspan=2)
 
-    entry_n = draw_entry(frame_widgets)
-    entry_n.grid(row=5, column=2, sticky='wens', columnspan=2)
+    entry_n_del = draw_entry(frame_widgets)
+    entry_n_del.grid(row=5, column=2, sticky='wens', columnspan=2)
 
     btn_del_point = draw_button(frame_widgets, "Удалить точку")
+    btn_del_point.config(
+        command=lambda: del_point_by_number(rbt_var, entry_n_del,
+                                            treeview_set1, treeview_set2))
     btn_del_point.grid(row=6, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
     # виджеты изменения точки
     # -----------------------------------------------
-    empty_lbl = draw_label(frame_widgets, "")
-    empty_lbl.grid(row=7, column=0, columnspan=4, sticky='wens')
 
     lbl_change_point = draw_label(frame_widgets, "Изменить точку")
-    lbl_change_point.grid(row=8, column=0, columnspan=4, sticky='wens')
+    lbl_change_point.grid(row=7, column=0, columnspan=4, sticky='wens')
 
-    label_n = draw_label(frame_widgets, "Номер точки:")
-    label_n.grid(row=9, column=0, sticky='wens', columnspan=2)
+    lbl_n_change = draw_label(frame_widgets, "Номер точки:")
+    lbl_n_change.grid(row=8, column=0, sticky='wens', columnspan=2)
 
-    entry_n = draw_entry(frame_widgets)
-    entry_n.grid(row=9, column=2, sticky='wens', columnspan=2)
+    entry_n_change = draw_entry(frame_widgets)
+    entry_n_change.grid(row=8, column=2, sticky='wens', columnspan=2)
 
-    label_x = draw_label(frame_widgets, " New X:")
-    label_x.grid(row=10, column=0, sticky='wens')
+    lbl_new_x = draw_label(frame_widgets, " New X:")
+    lbl_new_x.grid(row=9, column=0, sticky='wens')
 
-    entry_x = draw_entry(frame_widgets)
-    entry_x.grid(row=10, column=1, sticky='wens')
+    entry_new_x = draw_entry(frame_widgets)
+    entry_new_x.grid(row=9, column=1, sticky='wens')
 
-    label_y = draw_label(frame_widgets, "New Y:")
-    label_y.grid(row=10, column=2, sticky='wens')
+    lbl_new_y = draw_label(frame_widgets, "New Y:")
+    lbl_new_y.grid(row=9, column=2, sticky='wens')
 
-    entry_y = draw_entry(frame_widgets)
-    entry_y.grid(row=10, column=3, sticky='wens')
+    entry_new_y = draw_entry(frame_widgets)
+    entry_new_y.grid(row=9, column=3, sticky='wens')
 
-    btn_del_point = draw_button(frame_widgets, "Изменить точку")
-    btn_del_point.grid(row=11, column=0, columnspan=4, sticky='wens')
+    btn_change_point = draw_button(frame_widgets, "Изменить точку")
+    btn_change_point.grid(row=10, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
     # виджеты отображения точек
     # -----------------------------------------------
-    lbl_first_set = draw_label(frame_widgets, "Первое множество")
-    lbl_first_set.grid(row=12, column=0, sticky='wens', columnspan=2)
+    lbl_set1 = draw_label(frame_widgets, "Первое множество")
+    lbl_set1.grid(row=11, column=0, sticky='wens', columnspan=2)
 
-    lbl_second_set = draw_label(frame_widgets, "Второе множество")
-    lbl_second_set.grid(row=12, column=2, sticky='wens', columnspan=2)
+    lbl_set2 = draw_label(frame_widgets, "Второе множество")
+    lbl_set2.grid(row=11, column=2, sticky='wens', columnspan=2)
 
     columns = "number", "point"
 
-    frame_first = tk.Frame(root, bg="#FF0000")
-    frame_first.pack(side=tk.LEFT)
+    frame_sets = tk.Frame(root, bg="#800080")
+    frame_sets.pack()
 
-    frame_second = tk.Frame(root, bg="#FF0000")
-    frame_second.pack(side=tk.RIGHT)
+    frame_set1 = tk.Frame(frame_sets, bg="#FF0000")
+    frame_set1.pack(side=tk.LEFT, fill=tk.Y)
 
-    treeview_first_set = draw_set_treeview(frame_first, columns)
-    treeview_first_set.pack(side=tk.LEFT)
+    frame_set2 = tk.Frame(frame_sets, bg="#FF0000")
+    frame_set2.pack(side=tk.RIGHT)
 
-    scroll_first = draw_set_scrollbar(frame_first, treeview_first_set)
-    scroll_first.pack(side=tk.RIGHT, fill=tk.Y)
+    treeview_set1 = draw_set_treeview(frame_set1, columns)
+    treeview_set1.pack(side=tk.LEFT, fill=tk.Y)
 
-    treeview_second_set = draw_set_treeview(frame_second, columns)
-    treeview_second_set.pack(side=tk.LEFT)
+    scroll_set1 = draw_set_scrollbar(frame_set1, treeview_set1)
+    scroll_set1.pack(side=tk.RIGHT, fill=tk.Y)
 
-    scroll_second = draw_set_scrollbar(frame_second, treeview_second_set)
-    scroll_second.pack(side=tk.RIGHT, fill=tk.Y)
+    treeview_set2 = draw_set_treeview(frame_set2, columns)
+    treeview_set2.pack(side=tk.LEFT)
+
+    scroll_set2 = draw_set_scrollbar(frame_set2, treeview_set2)
+    scroll_set2.pack(side=tk.RIGHT, fill=tk.Y)
+
     # -----------------------------------------------
+
+    frame_tasks = create_frame_widgets(root)
+    frame_tasks.pack()
+
+    change_param_frame_widgets(frame_tasks)
+
+    btn_clean = draw_button(frame_tasks, "Очистить все поля")
+    btn_clean.grid(row=0, column=0, columnspan=2, sticky='wens')
+
+    btn_build_trian = draw_button(frame_tasks, "Построить треуг-к")
+    btn_build_trian.grid(row=0, column=2, columnspan=2, sticky='wens')
+
+    btn_print_res = draw_button(frame_tasks, "Вывести результаты")
+    btn_print_res.grid(row=1, column=0, columnspan=2, sticky='wens')
+
+    btn_task = draw_button(frame_tasks, "Условие задачи")
+    btn_task.grid(row=1, column=2, columnspan=2, sticky='wens')
 
     root.mainloop()

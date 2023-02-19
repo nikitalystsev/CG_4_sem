@@ -55,7 +55,7 @@ def get_index(treeview: ttk.Treeview) -> int:
     :return: индекс
     """
     count = 1
-    for k in treeview.get_children(""):
+    for _ in treeview.get_children(""):
         count += 1
 
     return count
@@ -99,7 +99,7 @@ def is_int(x: str) -> bool:
     except (ValueError, TypeError):
         messagebox.showwarning(
             "Некорректный ввод!",
-            "Введены недопустимые символы!"
+            "Введены некорректные данные для номера точки!"
         )
         return False
 
@@ -113,12 +113,42 @@ def is_valid_number(treeview: ttk.Treeview, num: int) -> bool:
     :param num: номер точки
     :return: True, если валидный номер, False иначе
     """
-
     for k in treeview.get_children(""):
-        if treeview.set(k, 0) == num:
+        if int(treeview.set(k, 0)) == num:
             return True
 
     return False
+
+
+def recalculation_index(treeview: ttk.Treeview) -> None:
+    """
+    Функция пересчитывает индексы номеров точек
+    после очередного удаления
+    :param treeview:
+    :return:
+    """
+    i = 1
+    for k in treeview.get_children(""):
+        treeview.set(k, 0, i)
+        i += 1
+
+
+def del_if_valid_num(treeview: ttk.Treeview, num: int) -> None:
+    """
+    Функция удаляет точку по валидному номеру
+    :param treeview: окно
+    :param num: номер точки
+    :return: None
+    """
+    if is_valid_number(treeview, num):
+        for k in treeview.get_children(""):
+            if int(treeview.set(k, 0)) == num:
+                treeview.delete(k)
+
+        recalculation_index(treeview)
+    else:
+        messagebox.showwarning("Неверный номер точки!",
+                               "Точки с введенным номером не существует!")
 
 
 def del_point_by_number(
@@ -139,8 +169,6 @@ def del_point_by_number(
     if is_int(n):
         n = int(n)
         if string_var.get() == "Первое множество":
-            if is_valid_number(first_set, n):
-                # for k in first_set.get_children(""):
-                #     if first_set.set(k, 0) == n:
-                first_set.delete()
-        # else:
+            del_if_valid_num(first_set, n)
+        else:
+            del_if_valid_num(second_set, n)
