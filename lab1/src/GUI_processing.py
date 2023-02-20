@@ -1,6 +1,25 @@
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import ttk
+from plane import *
+from listpoints import *
+from checks import *
+
+
+def is_int(x: str) -> bool:
+    """
+    Функция проверяет, является ли строка целым числом
+    :param x: строка
+    :return: True, если целое число, False иначе
+    """
+    if check_int(x):
+        return True
+
+    messagebox.showwarning(
+        "Некорректный ввод!",
+        "Введены некорректные данные для номера точки!"
+    )
+
+    return False
 
 
 def is_float(x: str) -> bool:
@@ -9,16 +28,15 @@ def is_float(x: str) -> bool:
     :param x:
     :return: True, если число, False иначе
     """
-    try:
-        x = float(x)
-    except (ValueError, TypeError):
-        messagebox.showwarning(
-            "Некорректный ввод!",
-            "Введены недопустимые символы!"
-        )
-        return False
+    if check_float(x):
+        return True
 
-    return True
+    messagebox.showwarning(
+        "Некорректный ввод!",
+        "Введены недопустимые символы!"
+    )
+
+    return False
 
 
 def check_input_point(point: tuple[str, str]) -> bool:
@@ -48,32 +66,18 @@ def get_point(entry_x: tk.Entry, entry_y: tk.Entry) -> (str, str):
     return x, y
 
 
-def get_index(treeview: ttk.Treeview) -> int:
-    """
-    Функция возвращает индекс для следующей добавляемой точки
-    :param treeview: окно
-    :return: индекс
-    """
-    count = 1
-    for _ in treeview.get_children(""):
-        count += 1
-
-    return count
-
-
-def add_point_to_desired(
-        string_var: tk.StringVar,
-        entry_x: tk.Entry,
-        entry_y: tk.Entry,
-        first_set: ttk.Treeview,
-        second_set: ttk.Treeview) -> None:
+def add_point_to_listpoints(
+        string_var: tk.StringVar, entry_x: tk.Entry,
+        entry_y: tk.Entry, set1: ListPoints,
+        set2: ListPoints, plane: PlaneCanvas) -> None:
     """
     Функция вставляет в поле в зависимости от выбора множества
     :param string_var: первое или второе множество
     :param entry_x: поле ввода абсциссы
     :param entry_y: поле ввода ординаты
-    :param first_set: поле отображения точек первого множества
-    :param second_set: поле отображения точек второго множества
+    :param set1: поле отображения точек первого множества
+    :param set2: поле отображения точек второго множества
+    :param plane: плоскость
     :return: None
     """
     x, y = get_point(entry_x, entry_y)
@@ -81,71 +85,16 @@ def add_point_to_desired(
     if check_input_point((x, y)):
         x, y = float(x), float(y)
         if string_var.get() == "Первое множество":
-            c = get_index(first_set)
-            first_set.insert("", tk.END, values=(c, str((x, y))))
+            set1.add_point((x, y))
+            plane.draw_point(x, y)
         else:
-            c = get_index(second_set)
-            second_set.insert("", tk.END, values=(c, str((x, y))))
+            set2.add_point((x, y))
+            plane.draw_point(x, y)
 
 
-def is_int(x: str) -> bool:
-    """
-    Функция проверяет, является ли строка целым числом
-    :param x: строка
-    :return: True, если целое число, False иначе
-    """
-    try:
-        x = int(x)
-    except (ValueError, TypeError):
-        messagebox.showwarning(
-            "Некорректный ввод!",
-            "Введены некорректные данные для номера точки!"
-        )
-        return False
-
-    return True
-
-
-def is_valid_number(treeview: ttk.Treeview, num: int) -> bool:
-    """
-    Функция проверяет, является ли номер точки валидным для удаления
-    :param treeview: окно
-    :param num: номер точки
-    :return: True, если валидный номер, False иначе
-    """
-    for k in treeview.get_children(""):
-        if int(treeview.set(k, 0)) == num:
-            return True
-
-    return False
-
-
-def recalculation_index(treeview: ttk.Treeview) -> None:
-    """
-    Функция пересчитывает индексы номеров точек
-    после очередного удаления
-    :param treeview:
-    :return:
-    """
-    i = 1
-    for k in treeview.get_children(""):
-        treeview.set(k, 0, i)
-        i += 1
-
-
-def del_if_valid_num(treeview: ttk.Treeview, num: int) -> None:
-    """
-    Функция удаляет точку по валидному номеру
-    :param treeview: окно
-    :param num: номер точки
-    :return: None
-    """
-    if is_valid_number(treeview, num):
-        for k in treeview.get_children(""):
-            if int(treeview.set(k, 0)) == num:
-                treeview.delete(k)
-
-        recalculation_index(treeview)
+def del_if_valid_num(table: ListPoints, n) -> None:
+    if table.is_valid_number(n):
+        table.del_point(n)
     else:
         messagebox.showwarning("Неверный номер точки!",
                                "Точки с введенным номером не существует!")
@@ -154,14 +103,14 @@ def del_if_valid_num(treeview: ttk.Treeview, num: int) -> None:
 def del_point_by_number(
         string_var: tk.StringVar,
         entry_n: tk.Entry,
-        first_set: ttk.Treeview,
-        second_set: ttk.Treeview) -> None:
+        set1: ListPoints,
+        set2: ListPoints) -> None:
     """
     Функция удаляет из поля точку в зависимости от выбора множества
     :param string_var: первое или второе множество
     :param entry_n: поле ввода номера
-    :param first_set: поле отображения точек первого множества
-    :param second_set: поле отображения точек второго множества
+    :param set1: поле отображения точек первого множества
+    :param set2: поле отображения точек второго множества
     :return: None
     """
     n = entry_n.get()
@@ -169,6 +118,46 @@ def del_point_by_number(
     if is_int(n):
         n = int(n)
         if string_var.get() == "Первое множество":
-            del_if_valid_num(first_set, n)
+            del_if_valid_num(set1, n)
         else:
-            del_if_valid_num(second_set, n)
+            del_if_valid_num(set2, n)
+
+
+def change_if_valid_num(table: ListPoints, num, new_x: float, new_y: float) -> None:
+    """
+    Функция изменяет точку по валидному номеру
+    :param table: окно
+    :param num: номер точки
+    :param new_x: новая абсцисса точки
+    :param new_y: новая ордината точки
+    :return: None
+    """
+    if table.is_valid_number(num):
+        table.change_point(num, new_x, new_y)
+    else:
+        messagebox.showwarning("Неверный номер точки!",
+                               "Точки с введенным номером не существует!")
+
+
+def change_point_by_number(
+        string_var: tk.StringVar, entry_n: tk.Entry,
+        entry_x: tk.Entry, entry_y: tk.Entry,
+        set1: ListPoints, set2: ListPoints) -> None:
+    """
+    Функция изменяет точку в одном из множеств
+    :param string_var: первое или второе множество
+    :param entry_n: поле ввода номера
+    :param entry_x: поле ввода новой абсциссы точки
+    :param entry_y: поле ввода новой ординаты точки
+    :param set1: поле отображения точек первого множества
+    :param set2: поле отображения точек второго множества
+    :return: None
+    """
+    n = entry_n.get()
+    x, y = get_point(entry_x, entry_y)
+
+    if is_int(n) and check_input_point((x, y)):
+        if string_var.get() == "Первое множество":
+            change_if_valid_num(set1, n, x, y)
+        else:
+            change_if_valid_num(set2, n, x, y)

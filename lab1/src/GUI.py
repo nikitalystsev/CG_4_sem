@@ -1,6 +1,6 @@
-import tkinter as tk
 from GUI_processing import *
-from tkinter import ttk
+from plane import *
+from listpoints import *
 
 
 def change_param_root(root: tk.Tk) -> None:
@@ -12,12 +12,9 @@ def change_param_root(root: tk.Tk) -> None:
     root.title("Лабораторная №1")
     root_width = root.winfo_screenwidth()
     root_height = root.winfo_screenheight() - 70
+
     root.geometry(f"{root_width}x{root_height}+0+0")
     root.resizable(width=True, height=True)
-    # root.minsize(400, 500)
-    # root.maxsize(1280, 1024)
-
-    # root.config(bg="#7FFFD4")
 
 
 def create_frame_plane(root: tk.Tk) -> tk.Frame:
@@ -26,8 +23,8 @@ def create_frame_plane(root: tk.Tk) -> tk.Frame:
     :param root: окно
     :return: фрейм для плоскости
     """
-    frame_plane_width = root.winfo_screenwidth() - 200
-    frame_plane_height = root.winfo_screenheight()
+    frame_plane_width = root.winfo_screenwidth() - 400
+    frame_plane_height = root.winfo_screenheight() - 70
 
     frame_plane = tk.Frame(
         root,
@@ -45,13 +42,10 @@ def create_frame_widgets(root: tk.Tk) -> tk.Frame:
     :return: фрейм для виджетов
     """
     frame_widgets_width = 400
-    frame_widgets_height = root.winfo_screenheight()
 
     frame_widgets = tk.Frame(
         root,
         width=frame_widgets_width,
-        # height=frame_widgets_height
-
     )
 
     return frame_widgets
@@ -69,23 +63,26 @@ def change_param_frame_widgets(frame_widgets: tk.Frame) -> None:
     frame_widgets.config(bg="#C0C0C0")
 
 
-def draw_canvas_plane(frame_plane: tk.Frame) -> tk.Canvas:
+def draw_plane(frame_plane: tk.Frame) -> PlaneCanvas:
     """
     Функция размещает холст (canvas) для плоскости (plane) на главном окне
     :param frame_plane: окно
     :return: холст
     """
-    canvas_plane_width = frame_plane.winfo_screenwidth() - 400
-    canvas_plane_height = frame_plane.winfo_screenheight()
+    plane_width = frame_plane.winfo_screenwidth() - 400
+    plane_height = frame_plane.winfo_screenheight() - 70
 
-    canvas_plane = tk.Canvas(
-        frame_plane,
-        width=canvas_plane_width,
-        height=canvas_plane_height,
-        bg='#40E0D0'
+    plane = PlaneCanvas(
+        y_min=0,
+        y_max=10,
+        x_min=0,
+        master=frame_plane,
+        width=plane_width,
+        height=plane_height,
+        bg="#40E0D0"
     )
 
-    return canvas_plane
+    return plane
 
 
 def draw_label(frame: tk.Frame, text: str) -> tk.Label:
@@ -136,12 +133,15 @@ def draw_button(frame: tk.Frame, text: str) -> tk.Button:
         relief=tk.RAISED
     )
 
-    button.config(bg="#C0C0C0")
+    button.config(bg="#00CED1")
 
     return button
 
 
-def draw_radiobutton(frame: tk.Frame, triangle_set, text: str) -> tk.Radiobutton:
+def draw_radiobutton(
+        frame: tk.Frame,
+        triangle_set: tk.StringVar,
+        text: str) -> tk.Radiobutton:
     """
     Функция создает переключатель 2-х множеств треугольника для ввода
     :param frame: окно
@@ -160,42 +160,32 @@ def draw_radiobutton(frame: tk.Frame, triangle_set, text: str) -> tk.Radiobutton
     return rbt
 
 
-def draw_set_treeview(frame: tk.Frame, columns: tuple[str, str]) -> ttk.Treeview:
+def draw_listpoints(frame: tk.Frame, columns: tuple[str, str]) -> ListPoints:
     """
     Функция создает таблицу для отображения точек
     :param frame: окно
     :param columns: заголовки таблицы
     :return: фрейм
     """
-    treeview = ttk.Treeview(
+    listpoints = ListPoints(
         frame,
         columns=columns,
         show="headings",
         height=14
     )
 
-    style_head = ttk.Style()
-    style_head.configure("Treeview.Heading", font=("Courier New", 12))
-    style_head.configure("Treeview", font=("Courier New", 9))
-
-    treeview.heading(column="number", text="№")
-    treeview.heading(column="point", text="Точка")
-
-    treeview.column("#1", width=30, anchor='center')
-    treeview.column("#2", width=148, anchor='center')
-
-    return treeview
+    return listpoints
 
 
-def draw_set_scrollbar(frame: tk.Frame, treeview: ttk.Treeview) -> ttk.Scrollbar:
+def draw_set_scrollbar(frame: tk.Frame, listpoints: ListPoints) -> ttk.Scrollbar:
     """
     Функция создает полосу прокрутки для отображенных точек
     :param frame: окно
-    :param treeview: поле отображенных точек
+    :param listpoints: поле отображенных точек
     :return: полосу прокрутки
     """
-    scrollbar = ttk.Scrollbar(frame, command=treeview.yview)
-    treeview.config(yscrollcommand=scrollbar.set)
+    scrollbar = ttk.Scrollbar(frame, command=listpoints.yview)
+    listpoints.config(yscrollcommand=scrollbar.set)
 
     return scrollbar
 
@@ -218,8 +208,8 @@ def build_interface() -> None:
     frame_widgets.pack()
     # -----------------------------------------------
 
-    canvas_plane = draw_canvas_plane(frame_plane)
-    canvas_plane.pack()
+    plane = draw_plane(frame_plane)
+    plane.pack()
 
     change_param_frame_widgets(frame_widgets)
 
@@ -242,8 +232,8 @@ def build_interface() -> None:
 
     btn_add_point = draw_button(frame_widgets, "Добавить точку")
     btn_add_point.config(
-        command=lambda: add_point_to_desired(rbt_var, entry_add_x, entry_add_y,
-                                             treeview_set1, treeview_set2))
+        command=lambda: add_point_to_listpoints(rbt_var, entry_add_x, entry_add_y,
+                                                listpoints_set1, listpoints_set2, plane))
     btn_add_point.grid(row=2, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
@@ -273,7 +263,7 @@ def build_interface() -> None:
     btn_del_point = draw_button(frame_widgets, "Удалить точку")
     btn_del_point.config(
         command=lambda: del_point_by_number(rbt_var, entry_n_del,
-                                            treeview_set1, treeview_set2))
+                                            listpoints_set1, listpoints_set2))
     btn_del_point.grid(row=6, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
@@ -302,6 +292,10 @@ def build_interface() -> None:
     entry_new_y.grid(row=9, column=3, sticky='wens')
 
     btn_change_point = draw_button(frame_widgets, "Изменить точку")
+    btn_change_point.config(
+        command=lambda: change_point_by_number(rbt_var, entry_n_change,
+                                               entry_new_x, entry_new_y,
+                                               listpoints_set1, listpoints_set2))
     btn_change_point.grid(row=10, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
@@ -324,16 +318,16 @@ def build_interface() -> None:
     frame_set2 = tk.Frame(frame_sets, bg="#FF0000")
     frame_set2.pack(side=tk.RIGHT)
 
-    treeview_set1 = draw_set_treeview(frame_set1, columns)
-    treeview_set1.pack(side=tk.LEFT, fill=tk.Y)
+    listpoints_set1 = draw_listpoints(frame_set1, columns)
+    listpoints_set1.pack(side=tk.LEFT, fill=tk.Y)
 
-    scroll_set1 = draw_set_scrollbar(frame_set1, treeview_set1)
+    scroll_set1 = draw_set_scrollbar(frame_set1, listpoints_set1)
     scroll_set1.pack(side=tk.RIGHT, fill=tk.Y)
 
-    treeview_set2 = draw_set_treeview(frame_set2, columns)
-    treeview_set2.pack(side=tk.LEFT)
+    listpoints_set2 = draw_listpoints(frame_set2, columns)
+    listpoints_set2.pack(side=tk.LEFT)
 
-    scroll_set2 = draw_set_scrollbar(frame_set2, treeview_set2)
+    scroll_set2 = draw_set_scrollbar(frame_set2, listpoints_set2)
     scroll_set2.pack(side=tk.RIGHT, fill=tk.Y)
 
     # -----------------------------------------------
@@ -354,5 +348,11 @@ def build_interface() -> None:
 
     btn_task = draw_button(frame_tasks, "Условие задачи")
     btn_task.grid(row=1, column=2, columnspan=2, sticky='wens')
+    # -----------------------------------------------
+
+    # работа с plane
+    # -----------------------------------------------
+
+    plane.draw_axis()
 
     root.mainloop()
