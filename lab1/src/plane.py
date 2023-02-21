@@ -23,7 +23,8 @@ class PlaneCanvas(Canvas):
         self.x_min = x_min
         self.x_max = self.get_x_max()
         self.axis_space = 10
-        self.points = []
+        self.set1 = []
+        self.set2 = []
 
     def get_x_max(self) -> float:
         """
@@ -125,9 +126,10 @@ class PlaneCanvas(Canvas):
         """
         canvas_x, canvas_y = self.to_canvas_coords(origin_x, origin_y)
         point = self.create_oval(canvas_x - 3, canvas_y - 3, canvas_x + 3, canvas_y + 3, fill=color, outline=color)
-        self.points.append(point)
 
-    def change_point(self, n: int, new_origin_x: float, new_origin_y: float, color='red') -> None:
+        self.set1.append(point) if color == "#006400" else self.set2.append(point)
+
+    def change_point(self, n: int, new_origin_x: float, new_origin_y: float, color: str) -> None:
         """
         Метод изменяет точку
         :param n: номер точки
@@ -137,19 +139,20 @@ class PlaneCanvas(Canvas):
         :return: None
         """
         new_canvas_x, new_canvas_y = self.to_canvas_coords(new_origin_x, new_origin_y)
-        self.coords(self.points[n - 1], new_canvas_x - 3, new_canvas_y - 3, new_canvas_x + 3, new_canvas_y + 3)
+        self.delete(self.set1[n - 1]) if color == "#006400" else self.delete(self.set2[n - 1])
         point = self.create_oval(new_canvas_x - 3, new_canvas_y - 3, new_canvas_x + 3, new_canvas_y + 3, fill=color,
                                  outline=color)
-        self.points[n - 1] = point
+        self.set1.insert(n - 1, point) if color == "#006400" else self.set2.insert(n - 1, point)
 
-    def del_point(self, n: int) -> None:
+    def del_point(self, n: int, color: str) -> None:
         """
         Метод удаляет точку
         :param n: номер точки
+        :param color: цвет точки
         :return: None
         """
-        self.delete(self.points[n - 1])
-        self.points.pop(n - 1)
+        self.delete(self.set1[n - 1]) if color == "#006400" else self.delete(self.set2[n - 1])
+        self.set1.pop(n - 1) if color == "#006400" else self.delete(self.set2[n - 1])
 
     # def change_point(self, new_x, new_y):
     # def draw_line(self, x1, y1, x2, y2, color='black', width=1):
