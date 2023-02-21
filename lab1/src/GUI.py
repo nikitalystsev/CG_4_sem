@@ -263,7 +263,7 @@ def build_interface() -> None:
     btn_del_point = draw_button(frame_widgets, "Удалить точку")
     btn_del_point.config(
         command=lambda: del_point_by_number(rbt_var, entry_n_del,
-                                            listpoints_set1, listpoints_set2))
+                                            listpoints_set1, listpoints_set2, plane))
     btn_del_point.grid(row=6, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 
@@ -295,7 +295,7 @@ def build_interface() -> None:
     btn_change_point.config(
         command=lambda: change_point_by_number(rbt_var, entry_n_change,
                                                entry_new_x, entry_new_y,
-                                               listpoints_set1, listpoints_set2))
+                                               listpoints_set1, listpoints_set2, plane))
     btn_change_point.grid(row=10, column=0, columnspan=4, sticky='wens')
     # -----------------------------------------------
 

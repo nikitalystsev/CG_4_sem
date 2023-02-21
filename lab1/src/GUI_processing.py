@@ -92,25 +92,36 @@ def add_point_to_listpoints(
             plane.draw_point(x, y)
 
 
-def del_if_valid_num(table: ListPoints, n) -> None:
+def del_if_valid_num(table: ListPoints, plane: PlaneCanvas, n) -> None:
+    """
+    Функция удаляет точку по валидному номеру
+    :param table: таблица точек
+    :param plane: плоскость
+    :param n: номер точки
+    :return: None
+    """
     if table.is_valid_number(n):
         table.del_point(n)
-    else:
-        messagebox.showwarning("Неверный номер точки!",
-                               "Точки с введенным номером не существует!")
+        plane.del_point(n)
+        return
+
+    messagebox.showwarning("Неверный номер точки!",
+                           "Точки с введенным номером не существует!")
 
 
 def del_point_by_number(
         string_var: tk.StringVar,
         entry_n: tk.Entry,
         set1: ListPoints,
-        set2: ListPoints) -> None:
+        set2: ListPoints,
+        plane: PlaneCanvas) -> None:
     """
     Функция удаляет из поля точку в зависимости от выбора множества
     :param string_var: первое или второе множество
     :param entry_n: поле ввода номера
     :param set1: поле отображения точек первого множества
     :param set2: поле отображения точек второго множества
+    :param plane: плоскость
     :return: None
     """
     n = entry_n.get()
@@ -118,31 +129,39 @@ def del_point_by_number(
     if is_int(n):
         n = int(n)
         if string_var.get() == "Первое множество":
-            del_if_valid_num(set1, n)
+            del_if_valid_num(set1, plane, n)
         else:
-            del_if_valid_num(set2, n)
+            del_if_valid_num(set2, plane, n)
 
 
-def change_if_valid_num(table: ListPoints, num, new_x: float, new_y: float) -> None:
+def change_if_valid_num(
+        table: ListPoints,
+        num: int,
+        new_x: float,
+        new_y: float,
+        plane: PlaneCanvas) -> None:
     """
     Функция изменяет точку по валидному номеру
     :param table: окно
     :param num: номер точки
     :param new_x: новая абсцисса точки
     :param new_y: новая ордината точки
+    :param plane: плоскость
     :return: None
     """
     if table.is_valid_number(num):
         table.change_point(num, new_x, new_y)
-    else:
-        messagebox.showwarning("Неверный номер точки!",
-                               "Точки с введенным номером не существует!")
+        plane.change_point(num, new_x, new_y)
+        return
+
+    messagebox.showwarning("Неверный номер точки!",
+                           "Точки с введенным номером не существует!")
 
 
 def change_point_by_number(
         string_var: tk.StringVar, entry_n: tk.Entry,
         entry_x: tk.Entry, entry_y: tk.Entry,
-        set1: ListPoints, set2: ListPoints) -> None:
+        set1: ListPoints, set2: ListPoints, plane: PlaneCanvas) -> None:
     """
     Функция изменяет точку в одном из множеств
     :param string_var: первое или второе множество
@@ -151,13 +170,15 @@ def change_point_by_number(
     :param entry_y: поле ввода новой ординаты точки
     :param set1: поле отображения точек первого множества
     :param set2: поле отображения точек второго множества
+    :param plane: плоскость
     :return: None
     """
     n = entry_n.get()
     x, y = get_point(entry_x, entry_y)
 
     if is_int(n) and check_input_point((x, y)):
+        n, x, y = int(n), float(x), float(y)
         if string_var.get() == "Первое множество":
-            change_if_valid_num(set1, n, x, y)
+            change_if_valid_num(set1, n, x, y, plane)
         else:
-            change_if_valid_num(set2, n, x, y)
+            change_if_valid_num(set2, n, x, y, plane)
