@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 
 
 class PlaneCanvas(Canvas):
@@ -10,6 +11,7 @@ class PlaneCanvas(Canvas):
         self.y_max = y_max
         self.x_min = x_min
         self.x_max = self.get_x_max()
+        self.axis_space = 10
 
     def get_x_max(self):
         axis_coef = self.width / self.height
@@ -20,14 +22,14 @@ class PlaneCanvas(Canvas):
         for i in range(0, self.height, 50):
             self.create_line(7, self.height - i, 13, self.height - i, width=2)
             if i != 0:
-                origin_y = self.to_origin_y(self.height - i)
+                origin_y = self.to_origin_y(self.height - i + 10)
                 text = str(round(origin_y, 2))
                 self.create_text(14, self.height - i, text=text, anchor='w')
 
         for i in range(0, self.width, 50):
             self.create_line(i, self.height - 7, i, self.height - 13, width=2)
             if i != 0:
-                origin_x = self.to_origin_x(i)
+                origin_x = self.to_origin_x(i - 10)
                 text = str(round(origin_x, 2))
                 self.create_text(i, self.height - 20, text=text)
 
@@ -56,20 +58,23 @@ class PlaneCanvas(Canvas):
         Функция преобразует полученную с поля ввода абсциссу
         для отображения на холсте
         """
-        return (x - self.x_min) / (self.x_max - self.x_min) * self.width
+        canvas_x = (x - self.x_min) / (self.x_max - self.x_min) * self.width
+        return canvas_x + self.axis_space
 
     def to_canvas_y(self, y):
         """
         Функция преобразует полученную с поля ввода ординату
         для отображения на холсте
         """
-        return (self.y_max - y) / (self.y_max - self.y_min) * self.height
+        canvas_y = (self.y_max - y) / (self.y_max - self.y_min) * self.height
+        return canvas_y - self.axis_space
 
     def to_canvas_coords(self, x, y):
         return self.to_canvas_x(x), self.to_canvas_y(y)
 
-    def draw_point(self, x, y, color='black'):
+    def draw_point(self, x, y, color='red'):
         canvas_x, canvas_y = self.to_canvas_coords(x, y)
+        messagebox.showinfo("", f"x = {canvas_x}, y = {canvas_y}")
         self.create_oval(canvas_x - 3, canvas_y - 3, canvas_x + 3, canvas_y + 3, fill=color, outline=color)
 
     # def change_point(self, new_x, new_y):
