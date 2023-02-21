@@ -79,8 +79,9 @@ def draw_plane(frame_plane: tk.Frame) -> PlaneCanvas:
         master=frame_plane,
         width=plane_width,
         height=plane_height,
-        bg="#40E0D0"
+        bg="#FFFFFF"
     )
+
 
     return plane
 
@@ -133,7 +134,7 @@ def draw_button(frame: tk.Frame, text: str) -> tk.Button:
         relief=tk.RAISED
     )
 
-    button.config(bg="#00CED1")
+    button.config(bg="#FFFFFF")
 
     return button
 
@@ -269,7 +270,6 @@ def build_interface() -> None:
 
     # виджеты изменения точки
     # -----------------------------------------------
-
     lbl_change_point = draw_label(frame_widgets, "Изменить точку")
     lbl_change_point.grid(row=7, column=0, columnspan=4, sticky='wens')
 
@@ -352,7 +352,6 @@ def build_interface() -> None:
 
     # работа с plane
     # -----------------------------------------------
-
     plane.draw_axis()
 
     root.mainloop()

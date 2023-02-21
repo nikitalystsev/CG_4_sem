@@ -4,6 +4,9 @@ from plane import *
 from listpoints import *
 from checks import *
 
+COLOR_SET1 = "#006400"
+COLOR_SET2 = "#8B0000"
+
 
 def is_int(x: str) -> bool:
     """
@@ -86,10 +89,10 @@ def add_point_to_listpoints(
         x, y = float(x), float(y)
         if string_var.get() == "Первое множество":
             set1.add_point((x, y))
-            plane.draw_point(x, y, color="#006400")
+            plane.draw_point(x, y, color=COLOR_SET1)
         else:
             set2.add_point((x, y))
-            plane.draw_point(x, y, color="#8B0000")
+            plane.draw_point(x, y, color=COLOR_SET2)
 
 
 def del_if_valid_num(table: ListPoints, plane: PlaneCanvas, n: int, color: str) -> None:
@@ -130,9 +133,9 @@ def del_point_by_number(
     if is_int(n):
         n = int(n)
         if string_var.get() == "Первое множество":
-            del_if_valid_num(set1, plane, n, color="#006400")
+            del_if_valid_num(set1, plane, n, color=COLOR_SET1)
         else:
-            del_if_valid_num(set2, plane, n, color="#8B0000")
+            del_if_valid_num(set2, plane, n, color=COLOR_SET2)
 
 
 def change_if_valid_num(
@@ -182,6 +185,6 @@ def change_point_by_number(
     if is_int(n) and check_input_point((x, y)):
         n, x, y = int(n), float(x), float(y)
         if string_var.get() == "Первое множество":
-            change_if_valid_num(set1, n, x, y, plane, color="#006400")
+            change_if_valid_num(set1, n, x, y, plane, color=COLOR_SET1)
         else:
-            change_if_valid_num(set2, n, x, y, plane, color="#8B0000")
+            change_if_valid_num(set2, n, x, y, plane, color=COLOR_SET2)
