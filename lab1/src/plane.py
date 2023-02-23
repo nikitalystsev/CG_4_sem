@@ -189,7 +189,7 @@ class PlaneCanvas(Canvas):
         """
         self.delete(ALL)  # очищаю весь холст
         # добавляю точку ко множеству точек (первому или второму)
-        self.set1.append((0, origin_x, origin_y)) if color == "#006400" else self.set2.append((0, origin_x, origin_y))
+        self.set1.append((0, origin_x, origin_y)) if color == "#FFA500" else self.set2.append((0, origin_x, origin_y))
         self.scaling()  # выполняется масштабирование
         self.draw_axis()  # рисуются координатные оси, с промежуточными значениями, соответствующими масштабу
         self.draw_set_points()
@@ -203,15 +203,15 @@ class PlaneCanvas(Canvas):
         :param color: цвет точки
         :return: None
         """
-        self.delete(ALL)
         # удаляю старую точку
         self.del_point(n, color)
         # Изменяю данные точки
-        if color == "#006400":
+        if color == "#FFA500":
             self.set1.insert(n - 1, (0, new_origin_x, new_origin_y))
         else:
             self.set2.insert(n - 1, (0, new_origin_x, new_origin_y))
 
+        self.delete(ALL)
         self.scaling()  # выполняется масштабирование
         self.draw_axis()  # рисуются координатные оси, с промежуточными значениями, соответствующими масштабу
         self.draw_set_points()
@@ -223,8 +223,8 @@ class PlaneCanvas(Canvas):
         :param color: цвет точки
         :return: None
         """
-        self.delete(self.set1[n - 1][0]) if color == "#006400" else self.delete(self.set2[n - 1][0])
-        self.set1.pop(n - 1) if color == "#006400" else self.set2.pop(n - 1)
+        self.delete(self.set1[n - 1][0]) if color == "#FFA500" else self.delete(self.set2[n - 1][0])
+        self.set1.pop(n - 1) if color == "#FFA500" else self.set2.pop(n - 1)
 
         self.delete(ALL)
         self.scaling()  # выполняется масштабирование

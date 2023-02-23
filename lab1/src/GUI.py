@@ -3,7 +3,7 @@ from plane import *
 from listpoints import *
 from checks import *
 
-COLOR_SET1 = "#006400"
+COLOR_SET1 = "#FFA500"
 COLOR_SET2 = "#8B0000"
 
 
@@ -202,7 +202,7 @@ class MyWindow(tk.Tk):
 
     def draw_plane(self) -> PlaneCanvas:
         """
-        Функция размещает холст (canvas) для плоскости (plane) на главном окне
+        Метод размещает холст (canvas) для плоскости (plane) на главном окне
         :return: холст
         """
         plane_width = self.frame_plane.winfo_screenwidth() - 400
@@ -222,7 +222,7 @@ class MyWindow(tk.Tk):
 
     def draw_label(self, text: str) -> tk.Label:
         """
-        Функция создает виджет текста (label)
+        Метод создает виджет текста (label)
         :param text: строка текста
         :return: виджет текста
         """
@@ -236,7 +236,7 @@ class MyWindow(tk.Tk):
 
     def draw_entry(self) -> tk.Entry:
         """
-        Функция создает виджет однострочного поля ввода (entry)
+        Метод создает виджет однострочного поля ввода (entry)
         :return: виджет однострочного поля ввода
         """
         entry = tk.Entry(
@@ -252,7 +252,7 @@ class MyWindow(tk.Tk):
 
     def draw_button(self, text: str) -> tk.Button:
         """
-        Функция создает виджет кнопки (button)
+        Метод создает виджет кнопки (button)
         :param text:  текст
         :return: виджет кнопки
         """
@@ -269,7 +269,7 @@ class MyWindow(tk.Tk):
 
     def draw_radiobutton(self, text: str) -> tk.Radiobutton:
         """
-        Функция создает переключатель 2-х множеств треугольника для ввода
+        Метод создает переключатель 2-х множеств треугольника для ввода
         :param text: значение переключателя
         :return: переключатель 2-х множеств треугольника для ввода
         """
@@ -285,7 +285,7 @@ class MyWindow(tk.Tk):
 
     def draw_listpoints(self, frame: tk.Frame) -> ListPoints:
         """
-        Функция создает таблицу для отображения точек
+        Метод создает таблицу для отображения точек
         :param frame: окно
         :return: фрейм
         """
@@ -300,7 +300,7 @@ class MyWindow(tk.Tk):
 
     def draw_set_scrollbars(self) -> (ttk.Scrollbar, ttk.Scrollbar):
         """
-        Функция создает полосу прокрутки для отображенных точек
+        Метод создает полосу прокрутки для отображенных точек
         :return: полосу прокрутки
         """
         set1_scrollbar = ttk.Scrollbar(self.frame_set1, command=self.listpoints_set1.yview)
@@ -314,7 +314,7 @@ class MyWindow(tk.Tk):
     @staticmethod
     def get_point(entry_x: tk.Entry, entry_y: tk.Entry) -> (str, str):
         """
-        Функция получает точку с однострочных полей ввода координат
+        Метод получает точку с однострочных полей ввода координат
         :param entry_x: поле ввода абсциссы
         :param entry_y: поле вода ординаты
         :return:
@@ -327,7 +327,7 @@ class MyWindow(tk.Tk):
     @staticmethod
     def is_int(x: str) -> bool:
         """
-        Функция проверяет, является ли строка целым числом
+        Метод проверяет, является ли строка целым числом
         :param x: строка
         :return: True, если целое число, False иначе
         """
@@ -344,7 +344,7 @@ class MyWindow(tk.Tk):
     @staticmethod
     def is_float(x: str) -> bool:
         """
-        Функция проверяет, число ли переданный параметр.
+        Метод проверяет, число ли переданный параметр.
         :param x:
         :return: True, если число, False иначе
         """
@@ -360,7 +360,7 @@ class MyWindow(tk.Tk):
 
     def check_input_point(self, x: str, y: str) -> bool:
         """
-        Функция проверяет введенную точку на корректность
+        Метод проверяет введенную точку на корректность
         :param x: абсцисса точки
         :param y: ордината точки
         :return: True, если точка валидная, False иначе
@@ -372,7 +372,7 @@ class MyWindow(tk.Tk):
 
     def add_point_to_listpoints(self) -> None:
         """
-        Функция вставляет в поле в зависимости от выбора множества
+        Метод вставляет в поле в зависимости от выбора множества
         :return: None
         """
         x, y = self.get_point(self.entry_add_x, self.entry_add_y)
@@ -388,7 +388,7 @@ class MyWindow(tk.Tk):
 
     def del_if_valid_num(self, table: ListPoints, n: int, color: str) -> None:
         """
-        Функция удаляет точку по валидному номеру
+        Метод удаляет точку по валидному номеру
         :param table: таблица точек
         :param n: номер точки
         :param color: цвет точки
@@ -404,7 +404,7 @@ class MyWindow(tk.Tk):
 
     def del_point_by_number(self) -> None:
         """
-        Функция удаляет из поля точку в зависимости от выбора множества
+        Метод удаляет из поля точку в зависимости от выбора множества
         :return: None
         """
         n = self.entry_n_del.get()
@@ -414,7 +414,7 @@ class MyWindow(tk.Tk):
             if self.rbt_var.get() == "Первое множество":
                 self.del_if_valid_num(self.listpoints_set1, n, color=COLOR_SET1)
             else:
-                self.del_if_valid_num(self.listpoints_set1, n, color=COLOR_SET2)
+                self.del_if_valid_num(self.listpoints_set2, n, color=COLOR_SET2)
 
     def change_if_valid_num(self, table: ListPoints,
                             num: int,
@@ -422,7 +422,7 @@ class MyWindow(tk.Tk):
                             new_y: float,
                             color: str) -> None:
         """
-        Функция изменяет точку по валидному номеру
+        Метод изменяет точку по валидному номеру
         :param table: окно
         :param num: номер точки
         :param new_x: новая абсцисса точки
@@ -440,7 +440,7 @@ class MyWindow(tk.Tk):
 
     def change_point_by_number(self) -> None:
         """
-        Функция изменяет точку в одном из множеств
+        Метод изменяет точку в одном из множеств
         :return: None
         """
         n = self.entry_n_change.get()
