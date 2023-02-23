@@ -82,7 +82,6 @@ def draw_plane(frame_plane: tk.Frame) -> PlaneCanvas:
         bg="#FFFFFF"
     )
 
-
     return plane
 
 
