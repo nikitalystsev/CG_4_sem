@@ -13,7 +13,8 @@ def main() -> None:
     :return: None
     """
 
-    build_interface()
+    root = MyWindow()
+    root.mainloop()
 
 
 if __name__ == '__main__':

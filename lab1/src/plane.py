@@ -52,8 +52,10 @@ class PlaneCanvas(Canvas):
         y_s = [y for _, _, y in self.set1]
         y_s.extend([y for _, _, y in self.set2])
 
-        self.y_max, self.y_min = max(y_s), min(y_s)
-        self.x_max, self.x_min = max(x_s), min(x_s)
+        self.y_max = max(y_s) + self.to_origin_y(self.axis_space)
+        self.y_min = min(y_s) - self.to_origin_y(self.axis_space)
+        self.x_max = max(x_s) + self.to_origin_x(self.axis_space)
+        self.x_min = min(x_s) - self.to_origin_x(self.axis_space)
 
         self.km = self.get_km()
 
@@ -73,9 +75,6 @@ class PlaneCanvas(Canvas):
         Метод строит координатные оси на плоскости
         :return: None
         """
-        self.create_line(0, self.axis_space, self.width, self.axis_space, fill="#ADFF2F")
-        self.create_line(self.width - self.axis_space, 0, self.width - self.axis_space, self.height, fill="#ADFF2F")
-
         for i in range(0, self.height, 50):
             self.create_line(7, self.height - i, 13, self.height - i, width=2)
             if i != 0:
@@ -171,7 +170,7 @@ class PlaneCanvas(Canvas):
         for i in range(len(self.set1)):
             canvas_x, canvas_y = self.to_canvas_coords(self.set1[i][1], self.set1[i][2])
             point = self.create_oval(canvas_x - oval_size, canvas_y - oval_size, canvas_x + oval_size,
-                                     canvas_y + oval_size, fill="#006400")
+                                     canvas_y + oval_size, fill="#FFA500")
             self.set1[i] = point, self.set1[i][1], self.set1[i][2]
 
         for i in range(len(self.set2)):
@@ -191,12 +190,9 @@ class PlaneCanvas(Canvas):
         self.delete(ALL)  # очищаю весь холст
         # добавляю точку ко множеству точек (первому или второму)
         self.set1.append((0, origin_x, origin_y)) if color == "#006400" else self.set2.append((0, origin_x, origin_y))
-        # self.scaling()  # выполняется масштабирование
+        self.scaling()  # выполняется масштабирование
         self.draw_axis()  # рисуются координатные оси, с промежуточными значениями, соответствующими масштабу
-
         self.draw_set_points()
-
-        # messagebox.showinfo("", f"self.find_all() = {self.find_all()}")
 
     def change_point(self, n: int, new_origin_x: float, new_origin_y: float, color: str) -> None:
         """
@@ -216,9 +212,8 @@ class PlaneCanvas(Canvas):
         else:
             self.set2.insert(n - 1, (0, new_origin_x, new_origin_y))
 
-        # self.scaling()  # выполняется масштабирование
+        self.scaling()  # выполняется масштабирование
         self.draw_axis()  # рисуются координатные оси, с промежуточными значениями, соответствующими масштабу
-
         self.draw_set_points()
 
     def del_point(self, n: int, color: str) -> None:
@@ -230,6 +225,11 @@ class PlaneCanvas(Canvas):
         """
         self.delete(self.set1[n - 1][0]) if color == "#006400" else self.delete(self.set2[n - 1][0])
         self.set1.pop(n - 1) if color == "#006400" else self.set2.pop(n - 1)
+
+        self.delete(ALL)
+        self.scaling()  # выполняется масштабирование
+        self.draw_axis()  # рисуются координатные оси, с промежуточными значениями, соответствующими масштабу
+        self.draw_set_points()  # отображаем неудаленные точки
 
 # def change_point(self, new_x, new_y):
 # def draw_line(self, x1, y1, x2, y2, color='black', width=1):

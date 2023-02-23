@@ -1,356 +1,454 @@
-from GUI_processing import *
+import tkinter as tk
 from plane import *
 from listpoints import *
+from checks import *
+
+COLOR_SET1 = "#006400"
+COLOR_SET2 = "#8B0000"
 
 
-def change_param_root(root: tk.Tk) -> None:
+class MyWindow(tk.Tk):
     """
-    Функция изменяет параметры окна
-    :param root: окно
-    :return: None
+    Интерфейс программы
     """
-    root.title("Лабораторная №1")
-    root_width = root.winfo_screenwidth()
-    root_height = root.winfo_screenheight()
-
-    root.geometry(f"{root_width}x{root_height}+0+0")
-    root.resizable(width=False, height=False)
-
-
-def create_frame_plane(root: tk.Tk) -> tk.Frame:
-    """
-    Функция создает фрейм для плоскости (plane)
-    :param root: окно
-    :return: фрейм для плоскости
-    """
-    frame_plane_width = root.winfo_screenwidth() - 400
-    frame_plane_height = root.winfo_screenheight() - 70
-
-    frame_plane = tk.Frame(
-        root,
-        width=frame_plane_width,
-        height=frame_plane_height
-    )
-
-    return frame_plane
-
-
-def create_frame_widgets(root: tk.Tk) -> tk.Frame:
-    """
-    Функция создает фрейм для виджетов (plane)
-    :param root: окно
-    :return: фрейм для виджетов
-    """
-    frame_widgets_width = 380
-
-    frame_widgets = tk.Frame(
-        root,
-        width=frame_widgets_width,
-    )
-
-    return frame_widgets
-
-
-def change_param_frame_widgets(frame_widgets: tk.Frame) -> None:
-    """
-    Функция изменяет параметры фрейма для виджетов
-    :param frame_widgets: фрейм для виджетов
-    :return: None
-    """
-    for i in range(4):
-        frame_widgets.columnconfigure(index=i, weight=1, minsize=99)
-
-    frame_widgets.config(bg="#C0C0C0")
-
-
-def draw_plane(frame_plane: tk.Frame) -> PlaneCanvas:
-    """
-    Функция размещает холст (canvas) для плоскости (plane) на главном окне
-    :param frame_plane: окно
-    :return: холст
-    """
-    plane_width = frame_plane.winfo_screenwidth() - 400
-    plane_height = frame_plane.winfo_screenheight() - 70
-
-    plane = PlaneCanvas(
-        y_min=0,
-        y_max=10,
-        x_min=0,
-        master=frame_plane,
-        width=plane_width,
-        height=plane_height,
-        bg="#FFFFFF"
-    )
-
-    return plane
-
-
-def draw_label(frame: tk.Frame, text: str) -> tk.Label:
-    """
-    Функция создает виджет текста (label)
-    :param frame: окно
-    :param text: строка текста
-    :return: виджет текста
-    """
-    label = tk.Label(
-        frame,
-        text=text,
-        font=("Courier New", 14, 'bold'),
-    )
-
-    return label
-
-
-def draw_entry(frame: tk.Frame) -> tk.Entry:
-    """
-    Функция создает виджет однострочного поля ввода (entry)
-    :param frame: окно
-    :return: виджет однострочного поля ввода
-    """
-    entry = tk.Entry(
-        frame,
-        width=15,
-        relief=tk.SUNKEN,
-        borderwidth=5,
-        justify=tk.RIGHT,
-        font=("Courier New", 14)
-    )
-
-    return entry
-
-
-def draw_button(frame: tk.Frame, text: str) -> tk.Button:
-    """
-    Функция создает виджет кнопки (button)
-    :param frame: окно
-    :param text:  текст
-    :return: виджет кнопки
-    """
-    button = tk.Button(
-        frame,
-        text=text,
-        font=("Courier New", 12),
-        relief=tk.RAISED
-    )
-
-    button.config(bg="#FFFFFF")
-
-    return button
-
-
-def draw_radiobutton(
-        frame: tk.Frame,
-        triangle_set: tk.StringVar,
-        text: str) -> tk.Radiobutton:
-    """
-    Функция создает переключатель 2-х множеств треугольника для ввода
-    :param frame: окно
-    :param triangle_set: переменная tkinter
-    :param text: значение переключателя
-    :return: переключатель 2-х множеств треугольника для ввода
-    """
-    rbt = tk.Radiobutton(
-        frame,
-        text=text,
-        value=text,
-        variable=triangle_set,
-        font=("Courier New", 12, 'bold')
-    )
-
-    return rbt
-
-
-def draw_listpoints(frame: tk.Frame, columns: tuple[str, str]) -> ListPoints:
-    """
-    Функция создает таблицу для отображения точек
-    :param frame: окно
-    :param columns: заголовки таблицы
-    :return: фрейм
-    """
-    listpoints = ListPoints(
-        frame,
-        columns=columns,
-        show="headings",
-        height=14
-    )
-
-    return listpoints
-
-
-def draw_set_scrollbar(frame: tk.Frame, listpoints: ListPoints) -> ttk.Scrollbar:
-    """
-    Функция создает полосу прокрутки для отображенных точек
-    :param frame: окно
-    :param listpoints: поле отображенных точек
-    :return: полосу прокрутки
-    """
-    scrollbar = ttk.Scrollbar(frame, command=listpoints.yview)
-    listpoints.config(yscrollcommand=scrollbar.set)
-
-    return scrollbar
-
-
-def build_interface() -> None:
-    """
-    Функция строит интерфейс
-    :return: None
-    """
-    root = tk.Tk()
-
-    change_param_root(root)
-
-    # создали фреймы
-    # -----------------------------------------------
-    frame_plane = create_frame_plane(root)
-    frame_plane.pack(side=tk.RIGHT)
-
-    frame_widgets = create_frame_widgets(root)
-    frame_widgets.pack()
-    # -----------------------------------------------
-
-    plane = draw_plane(frame_plane)
-    plane.pack()
-
-    change_param_frame_widgets(frame_widgets)
-
-    # виджеты для добавления точки
-    # -----------------------------------------------
-    lbl_add_point = draw_label(frame_widgets, "Добавить точку")
-    lbl_add_point.grid(row=0, column=0, columnspan=4, sticky='wens')
-
-    lbl_add_x = draw_label(frame_widgets, "X:")
-    lbl_add_x.grid(row=1, column=0, sticky='wens')
-
-    entry_add_x = draw_entry(frame_widgets)
-    entry_add_x.grid(row=1, column=1, sticky='wens')
-
-    lbl_add_y = draw_label(frame_widgets, "Y:")
-    lbl_add_y.grid(row=1, column=2, sticky='wens')
-
-    entry_add_y = draw_entry(frame_widgets)
-    entry_add_y.grid(row=1, column=3, sticky='wens')
-
-    btn_add_point = draw_button(frame_widgets, "Добавить точку")
-    btn_add_point.config(
-        command=lambda: add_point_to_listpoints(rbt_var, entry_add_x, entry_add_y,
-                                                listpoints_set1, listpoints_set2, plane))
-    btn_add_point.grid(row=2, column=0, columnspan=4, sticky='wens')
-    # -----------------------------------------------
-
-    # виджет переключения множеств
-    # -----------------------------------------------
-    values = "Первое множество", "Второе множество"
-    rbt_var = tk.StringVar(value=values[0])
-
-    rbt_set1 = draw_radiobutton(frame_widgets, rbt_var, values[0])
-    rbt_set1.grid(row=3, column=0, columnspan=2, sticky='wens')
-
-    rbt_set2 = draw_radiobutton(frame_widgets, rbt_var, values[1])
-    rbt_set2.grid(row=3, column=2, columnspan=2, sticky='wens')
-    # -----------------------------------------------
-
-    # виджет удаления точки по номеру
-    # -----------------------------------------------
-    lbl_del_point = draw_label(frame_widgets, "Удалить точку")
-    lbl_del_point.grid(row=4, column=0, columnspan=4, sticky='wens')
 
-    lbl_n_del = draw_label(frame_widgets, "Номер точки:")
-    lbl_n_del.grid(row=5, column=0, sticky='wens', columnspan=2)
-
-    entry_n_del = draw_entry(frame_widgets)
-    entry_n_del.grid(row=5, column=2, sticky='wens', columnspan=2)
-
-    btn_del_point = draw_button(frame_widgets, "Удалить точку")
-    btn_del_point.config(
-        command=lambda: del_point_by_number(rbt_var, entry_n_del,
-                                            listpoints_set1, listpoints_set2, plane))
-    btn_del_point.grid(row=6, column=0, columnspan=4, sticky='wens')
-    # -----------------------------------------------
-
-    # виджеты изменения точки
-    # -----------------------------------------------
-    lbl_change_point = draw_label(frame_widgets, "Изменить точку")
-    lbl_change_point.grid(row=7, column=0, columnspan=4, sticky='wens')
-
-    lbl_n_change = draw_label(frame_widgets, "Номер точки:")
-    lbl_n_change.grid(row=8, column=0, sticky='wens', columnspan=2)
-
-    entry_n_change = draw_entry(frame_widgets)
-    entry_n_change.grid(row=8, column=2, sticky='wens', columnspan=2)
-
-    lbl_new_x = draw_label(frame_widgets, " New X:")
-    lbl_new_x.grid(row=9, column=0, sticky='wens')
-
-    entry_new_x = draw_entry(frame_widgets)
-    entry_new_x.grid(row=9, column=1, sticky='wens')
-
-    lbl_new_y = draw_label(frame_widgets, "New Y:")
-    lbl_new_y.grid(row=9, column=2, sticky='wens')
-
-    entry_new_y = draw_entry(frame_widgets)
-    entry_new_y.grid(row=9, column=3, sticky='wens')
-
-    btn_change_point = draw_button(frame_widgets, "Изменить точку")
-    btn_change_point.config(
-        command=lambda: change_point_by_number(rbt_var, entry_n_change,
-                                               entry_new_x, entry_new_y,
-                                               listpoints_set1, listpoints_set2, plane))
-    btn_change_point.grid(row=10, column=0, columnspan=4, sticky='wens')
-    # -----------------------------------------------
-
-    # виджеты отображения точек
-    # -----------------------------------------------
-    lbl_set1 = draw_label(frame_widgets, "Первое множество")
-    lbl_set1.grid(row=11, column=0, sticky='wens', columnspan=2)
-
-    lbl_set2 = draw_label(frame_widgets, "Второе множество")
-    lbl_set2.grid(row=11, column=2, sticky='wens', columnspan=2)
-
-    columns = "number", "point"
-
-    frame_sets = tk.Frame(root, bg="#800080")
-    frame_sets.pack()
-
-    frame_set1 = tk.Frame(frame_sets, bg="#FF0000")
-    frame_set1.pack(side=tk.LEFT, fill=tk.Y)
-
-    frame_set2 = tk.Frame(frame_sets, bg="#FF0000")
-    frame_set2.pack(side=tk.RIGHT)
-
-    listpoints_set1 = draw_listpoints(frame_set1, columns)
-    listpoints_set1.pack(side=tk.LEFT, fill=tk.Y)
-
-    scroll_set1 = draw_set_scrollbar(frame_set1, listpoints_set1)
-    scroll_set1.pack(side=tk.RIGHT, fill=tk.Y)
-
-    listpoints_set2 = draw_listpoints(frame_set2, columns)
-    listpoints_set2.pack(side=tk.LEFT)
-
-    scroll_set2 = draw_set_scrollbar(frame_set2, listpoints_set2)
-    scroll_set2.pack(side=tk.RIGHT, fill=tk.Y)
-
-    # -----------------------------------------------
-
-    frame_tasks = create_frame_widgets(root)
-    frame_tasks.pack()
-
-    change_param_frame_widgets(frame_tasks)
-
-    btn_clean = draw_button(frame_tasks, "Очистить все поля")
-    btn_clean.grid(row=0, column=0, columnspan=2, sticky='wens')
-
-    btn_build_trian = draw_button(frame_tasks, "Построить треуг-к")
-    btn_build_trian.grid(row=0, column=2, columnspan=2, sticky='wens')
-
-    btn_print_res = draw_button(frame_tasks, "Вывести результаты")
-    btn_print_res.grid(row=1, column=0, columnspan=2, sticky='wens')
-
-    btn_task = draw_button(frame_tasks, "Условие задачи")
-    btn_task.grid(row=1, column=2, columnspan=2, sticky='wens')
-    # -----------------------------------------------
-
-    # работа с plane
-    # -----------------------------------------------
-    plane.draw_axis()
-
-    root.mainloop()
+    def __init__(self):
+        """
+        Инициализация атрибутов класса
+        """
+        super().__init__()
+        self.title("Лабораторная №1")
+        root_width = self.winfo_screenwidth()
+        root_height = self.winfo_screenheight()
+        self.geometry(f"{root_width}x{root_height}+0+0")
+        self.resizable(width=False, height=False)
+
+        # создал фреймы для всего
+        # -----------------------------------------------
+        self.frame_plane = self.create_frame_plane()
+        self.frame_plane.pack(side=tk.RIGHT)
+        self.frame_widgets = self.create_frame_widgets()
+        self.frame_widgets.pack()
+        # -----------------------------------------------
+        self.plane = self.draw_plane()
+        self.plane.pack()
+
+        # виджеты для добавления точки
+        # -----------------------------------------------
+        self.lbl_add_point = self.draw_label("Добавить точку")
+        self.lbl_add_point.grid(row=0, column=0, columnspan=4, sticky='wens')
+
+        self.lbl_add_x = self.draw_label("X:")
+        self.lbl_add_x.grid(row=1, column=0, sticky='wens')
+
+        self.entry_add_x = self.draw_entry()
+        self.entry_add_x.grid(row=1, column=1, sticky='wens')
+
+        self.lbl_add_y = self.draw_label("Y:")
+        self.lbl_add_y.grid(row=1, column=2, sticky='wens')
+
+        self.entry_add_y = self.draw_entry()
+        self.entry_add_y.grid(row=1, column=3, sticky='wens')
+
+        self.btn_add_point = self.draw_button("Добавить точку")
+        self.btn_add_point.config(command=lambda: self.add_point_to_listpoints())
+        self.btn_add_point.grid(row=2, column=0, columnspan=4, sticky='wens')
+        # -----------------------------------------------
+
+        # виджет переключения множеств
+        # -----------------------------------------------
+        values = "Первое множество", "Второе множество"
+        self.rbt_var = tk.StringVar(value=values[0])
+
+        self.rbt_set1 = self.draw_radiobutton(values[0])
+        self.rbt_set1.grid(row=3, column=0, columnspan=2, sticky='wens')
+
+        self.rbt_set2 = self.draw_radiobutton(values[1])
+        self.rbt_set2.grid(row=3, column=2, columnspan=2, sticky='wens')
+        # -----------------------------------------------
+
+        # виджет удаления точки по номеру
+        # -----------------------------------------------
+        self.lbl_del_point = self.draw_label("Удалить точку")
+        self.lbl_del_point.grid(row=4, column=0, columnspan=4, sticky='wens')
+
+        self.lbl_n_del = self.draw_label("Номер точки:")
+        self.lbl_n_del.grid(row=5, column=0, sticky='wens', columnspan=2)
+
+        self.entry_n_del = self.draw_entry()
+        self.entry_n_del.grid(row=5, column=2, sticky='wens', columnspan=2)
+
+        self.btn_del_point = self.draw_button("Удалить точку")
+        self.btn_del_point.config(command=lambda: self.del_point_by_number())
+        self.btn_del_point.grid(row=6, column=0, columnspan=4, sticky='wens')
+        # -----------------------------------------------
+
+        # виджеты изменения точки
+        # -----------------------------------------------
+        self.lbl_change_point = self.draw_label("Изменить точку")
+        self.lbl_change_point.grid(row=7, column=0, columnspan=4, sticky='wens')
+
+        self.lbl_n_change = self.draw_label("Номер точки:")
+        self.lbl_n_change.grid(row=8, column=0, sticky='wens', columnspan=2)
+
+        self.entry_n_change = self.draw_entry()
+        self.entry_n_change.grid(row=8, column=2, sticky='wens', columnspan=2)
+
+        self.lbl_new_x = self.draw_label(" New X:")
+        self.lbl_new_x.grid(row=9, column=0, sticky='wens')
+
+        self.entry_new_x = self.draw_entry()
+        self.entry_new_x.grid(row=9, column=1, sticky='wens')
+
+        self.lbl_new_y = self.draw_label("New Y:")
+        self.lbl_new_y.grid(row=9, column=2, sticky='wens')
+
+        self.entry_new_y = self.draw_entry()
+        self.entry_new_y.grid(row=9, column=3, sticky='wens')
+
+        self.btn_change_point = self.draw_button("Изменить точку")
+        self.btn_change_point.config(command=lambda: self.change_point_by_number())
+        self.btn_change_point.grid(row=10, column=0, columnspan=4, sticky='wens')
+        # -----------------------------------------------
+
+        # виджеты отображения точек
+        # -----------------------------------------------
+        self.lbl_set1 = self.draw_label("Первое множество")
+        self.lbl_set1.grid(row=11, column=0, sticky='wens', columnspan=2)
+
+        self.lbl_set2 = self.draw_label("Второе множество")
+        self.lbl_set2.grid(row=11, column=2, sticky='wens', columnspan=2)
+
+        self.columns = "number", "point"
+
+        frame_sets = tk.Frame(self, bg="#800080")
+        frame_sets.pack()
+
+        self.frame_set1 = tk.Frame(frame_sets, bg="#FF0000")
+        self.frame_set1.pack(side=tk.LEFT, fill=tk.Y)
+
+        self.frame_set2 = tk.Frame(frame_sets, bg="#FF0000")
+        self.frame_set2.pack(side=tk.RIGHT)
+
+        self.listpoints_set1 = self.draw_listpoints(self.frame_set1)
+        self.listpoints_set1.pack(side=tk.LEFT, fill=tk.Y)
+
+        self.listpoints_set2 = self.draw_listpoints(self.frame_set2)
+        self.listpoints_set2.pack(side=tk.LEFT)
+
+        scroll_set1, scroll_set2 = self.draw_set_scrollbars()
+        scroll_set1.pack(side=tk.RIGHT, fill=tk.Y)
+        scroll_set2.pack(side=tk.RIGHT, fill=tk.Y)
+        # -----------------------------------------------
+
+        frame_tasks = self.create_frame_widgets()
+        frame_tasks.pack()
+
+        self.btn_clean = tk.Button(frame_tasks, text="Очистить все поля", font=("Courier New", 12),
+                                   relief=tk.RAISED, bg="#FFFFFF")
+        self.btn_clean.grid(row=0, column=0, columnspan=2, sticky='wens')
+
+        self.btn_build_trian = tk.Button(frame_tasks, text="Построить треуг-к", font=("Courier New", 12),
+                                         relief=tk.RAISED, bg="#FFFFFF")
+        self.btn_build_trian.grid(row=0, column=2, columnspan=2, sticky='wens')
+
+        self.btn_print_res = tk.Button(frame_tasks, text="Вывести результаты", font=("Courier New", 12),
+                                       relief=tk.RAISED, bg="#FFFFFF")
+        self.btn_print_res.grid(row=1, column=0, columnspan=2, sticky='wens')
+
+        self.btn_task = tk.Button(frame_tasks, text="Условие задачи", font=("Courier New", 12),
+                                  relief=tk.RAISED, bg="#FFFFFF")
+        self.btn_task.grid(row=1, column=2, columnspan=2, sticky='wens')
+        # -----------------------------------------------
+
+        # работа с plane
+        # -----------------------------------------------
+        self.plane.draw_axis()
+
+    def create_frame_plane(self) -> tk.Frame:
+        """
+        Метод создает фрейм для плоскости (plane)
+        :return: фрейм для плоскости
+        """
+        frame_plane_width = self.winfo_screenwidth() - 400
+        frame_plane_height = self.winfo_screenheight() - 70
+
+        frame_plane = tk.Frame(
+            self,
+            width=frame_plane_width,
+            height=frame_plane_height
+        )
+
+        return frame_plane
+
+    def create_frame_widgets(self) -> tk.Frame:
+        """
+        Метод создает фрейм для виджетов (plane)
+        :return: фрейм для виджетов
+        """
+        frame_widgets_width = 400
+
+        frame_widgets = tk.Frame(
+            self,
+            width=frame_widgets_width,
+        )
+
+        for i in range(4):
+            frame_widgets.columnconfigure(index=i, weight=1, minsize=99)
+
+        frame_widgets.config(bg="#C0C0C0")
+
+        return frame_widgets
+
+    def draw_plane(self) -> PlaneCanvas:
+        """
+        Функция размещает холст (canvas) для плоскости (plane) на главном окне
+        :return: холст
+        """
+        plane_width = self.frame_plane.winfo_screenwidth() - 400
+        plane_height = self.frame_plane.winfo_screenheight() - 70
+
+        plane = PlaneCanvas(
+            y_min=0,
+            y_max=10,
+            x_min=0,
+            master=self.frame_plane,
+            width=plane_width,
+            height=plane_height,
+            bg="#FFFFFF"
+        )
+
+        return plane
+
+    def draw_label(self, text: str) -> tk.Label:
+        """
+        Функция создает виджет текста (label)
+        :param text: строка текста
+        :return: виджет текста
+        """
+        label = tk.Label(
+            self.frame_widgets,
+            text=text,
+            font=("Courier New", 14, 'bold'),
+        )
+
+        return label
+
+    def draw_entry(self) -> tk.Entry:
+        """
+        Функция создает виджет однострочного поля ввода (entry)
+        :return: виджет однострочного поля ввода
+        """
+        entry = tk.Entry(
+            self.frame_widgets,
+            width=15,
+            relief=tk.SUNKEN,
+            borderwidth=5,
+            justify=tk.RIGHT,
+            font=("Courier New", 14)
+        )
+
+        return entry
+
+    def draw_button(self, text: str) -> tk.Button:
+        """
+        Функция создает виджет кнопки (button)
+        :param text:  текст
+        :return: виджет кнопки
+        """
+        button = tk.Button(
+            self.frame_widgets,
+            text=text,
+            font=("Courier New", 12),
+            relief=tk.RAISED
+        )
+
+        button.config(bg="#FFFFFF")
+
+        return button
+
+    def draw_radiobutton(self, text: str) -> tk.Radiobutton:
+        """
+        Функция создает переключатель 2-х множеств треугольника для ввода
+        :param text: значение переключателя
+        :return: переключатель 2-х множеств треугольника для ввода
+        """
+        rbt = tk.Radiobutton(
+            self.frame_widgets,
+            text=text,
+            value=text,
+            variable=self.rbt_var,
+            font=("Courier New", 12, 'bold')
+        )
+
+        return rbt
+
+    def draw_listpoints(self, frame: tk.Frame) -> ListPoints:
+        """
+        Функция создает таблицу для отображения точек
+        :param frame: окно
+        :return: фрейм
+        """
+        listpoints = ListPoints(
+            frame,
+            columns=self.columns,
+            show="headings",
+            height=14
+        )
+
+        return listpoints
+
+    def draw_set_scrollbars(self) -> (ttk.Scrollbar, ttk.Scrollbar):
+        """
+        Функция создает полосу прокрутки для отображенных точек
+        :return: полосу прокрутки
+        """
+        set1_scrollbar = ttk.Scrollbar(self.frame_set1, command=self.listpoints_set1.yview)
+        self.listpoints_set1.config(yscrollcommand=set1_scrollbar.set)
+
+        set2_scrollbar = ttk.Scrollbar(self.frame_set2, command=self.listpoints_set2.yview)
+        self.listpoints_set2.config(yscrollcommand=set2_scrollbar.set)
+
+        return set1_scrollbar, set2_scrollbar
+
+    @staticmethod
+    def get_point(entry_x: tk.Entry, entry_y: tk.Entry) -> (str, str):
+        """
+        Функция получает точку с однострочных полей ввода координат
+        :param entry_x: поле ввода абсциссы
+        :param entry_y: поле вода ординаты
+        :return:
+        """
+        x = entry_x.get()
+        y = entry_y.get()
+
+        return x, y
+
+    @staticmethod
+    def is_int(x: str) -> bool:
+        """
+        Функция проверяет, является ли строка целым числом
+        :param x: строка
+        :return: True, если целое число, False иначе
+        """
+        if check_int(x):
+            return True
+
+        messagebox.showwarning(
+            "Некорректный ввод!",
+            "Введены некорректные данные для номера точки!"
+        )
+
+        return False
+
+    @staticmethod
+    def is_float(x: str) -> bool:
+        """
+        Функция проверяет, число ли переданный параметр.
+        :param x:
+        :return: True, если число, False иначе
+        """
+        if check_float(x):
+            return True
+
+        messagebox.showwarning(
+            "Некорректный ввод!",
+            "Введены недопустимые символы!"
+        )
+
+        return False
+
+    def check_input_point(self, x: str, y: str) -> bool:
+        """
+        Функция проверяет введенную точку на корректность
+        :param x: абсцисса точки
+        :param y: ордината точки
+        :return: True, если точка валидная, False иначе
+        """
+        if not self.is_float(x) or not self.is_float(y):
+            return False
+
+        return True
+
+    def add_point_to_listpoints(self) -> None:
+        """
+        Функция вставляет в поле в зависимости от выбора множества
+        :return: None
+        """
+        x, y = self.get_point(self.entry_add_x, self.entry_add_y)
+
+        if self.check_input_point(x, y):
+            x, y = float(x), float(y)
+            if self.rbt_var.get() == "Первое множество":
+                self.listpoints_set1.add_point((x, y))
+                self.plane.draw_point(x, y, color=COLOR_SET1)
+            else:
+                self.listpoints_set2.add_point((x, y))
+                self.plane.draw_point(x, y, color=COLOR_SET2)
+
+    def del_if_valid_num(self, table: ListPoints, n: int, color: str) -> None:
+        """
+        Функция удаляет точку по валидному номеру
+        :param table: таблица точек
+        :param n: номер точки
+        :param color: цвет точки
+        :return: None
+        """
+        if table.is_valid_number(n):
+            table.del_point(n)
+            self.plane.del_point(n, color=color)
+            return
+
+        messagebox.showwarning("Неверный номер точки!",
+                               "Точки с введенным номером не существует!")
+
+    def del_point_by_number(self) -> None:
+        """
+        Функция удаляет из поля точку в зависимости от выбора множества
+        :return: None
+        """
+        n = self.entry_n_del.get()
+
+        if self.is_int(n):
+            n = int(n)
+            if self.rbt_var.get() == "Первое множество":
+                self.del_if_valid_num(self.listpoints_set1, n, color=COLOR_SET1)
+            else:
+                self.del_if_valid_num(self.listpoints_set1, n, color=COLOR_SET2)
+
+    def change_if_valid_num(self, table: ListPoints,
+                            num: int,
+                            new_x: float,
+                            new_y: float,
+                            color: str) -> None:
+        """
+        Функция изменяет точку по валидному номеру
+        :param table: окно
+        :param num: номер точки
+        :param new_x: новая абсцисса точки
+        :param new_y: новая ордината точки
+        :param color: цвет точки
+        :return: None
+        """
+        if table.is_valid_number(num):
+            table.change_point(num, new_x, new_y)
+            self.plane.change_point(num, new_x, new_y, color=color)
+            return
+
+        messagebox.showwarning("Неверный номер точки!",
+                               "Точки с введенным номером не существует!")
+
+    def change_point_by_number(self) -> None:
+        """
+        Функция изменяет точку в одном из множеств
+        :return: None
+        """
+        n = self.entry_n_change.get()
+        x, y = self.get_point(self.entry_new_x, self.entry_new_y)
+
+        if self.is_int(n) and self.check_input_point(x, y):
+            n, x, y = int(n), float(x), float(y)
+            if self.rbt_var.get() == "Первое множество":
+                self.change_if_valid_num(self.listpoints_set1, n, x, y, color=COLOR_SET1)
+            else:
+                self.change_if_valid_num(self.listpoints_set2, n, x, y, color=COLOR_SET2)
