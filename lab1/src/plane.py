@@ -52,8 +52,8 @@ class PlaneCanvas(Canvas):
         y_s = [y for _, _, y in self.set1]
         y_s.extend([y for _, _, y in self.set2])
 
-        self.y_max, self.y_min = max(y_s) + 5, min(y_s) - 5
-        self.x_max, self.x_min = max(x_s) + 5, min(x_s) - 5
+        self.y_max, self.y_min = max(y_s), min(y_s)
+        self.x_max, self.x_min = max(x_s), min(x_s)
 
         self.km = self.get_km()
 
@@ -79,14 +79,14 @@ class PlaneCanvas(Canvas):
         for i in range(0, self.height, 50):
             self.create_line(7, self.height - i, 13, self.height - i, width=2)
             if i != 0:
-                origin_y = self.to_origin_y(self.height - i)
+                origin_y = self.to_origin_y(self.height - i + self.axis_space)
                 text = str(round(origin_y, 2))
                 self.create_text(14, self.height - i, text=text, anchor='w')
 
         for i in range(0, self.width, 50):
             self.create_line(i, self.height - 7, i, self.height - 13, width=2)
             if i != 0:
-                origin_x = self.to_origin_x(i)
+                origin_x = self.to_origin_x(i - self.axis_space)
                 text = str(round(origin_x, 2))
                 self.create_text(i, self.height - 20, text=text)
 

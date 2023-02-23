@@ -11,10 +11,10 @@ def change_param_root(root: tk.Tk) -> None:
     """
     root.title("Лабораторная №1")
     root_width = root.winfo_screenwidth()
-    root_height = root.winfo_screenheight() - 70
+    root_height = root.winfo_screenheight()
 
     root.geometry(f"{root_width}x{root_height}+0+0")
-    root.resizable(width=True, height=True)
+    root.resizable(width=False, height=False)
 
 
 def create_frame_plane(root: tk.Tk) -> tk.Frame:
@@ -41,7 +41,7 @@ def create_frame_widgets(root: tk.Tk) -> tk.Frame:
     :param root: окно
     :return: фрейм для виджетов
     """
-    frame_widgets_width = 400
+    frame_widgets_width = 380
 
     frame_widgets = tk.Frame(
         root,
