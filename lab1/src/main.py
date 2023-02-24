@@ -4,7 +4,7 @@
 соединяющая точки пересечения высот, образует минимальный угол с-осью абсцисс
 """
 
-from src.GUI import *
+from GUI import *
 
 
 def main() -> None:
@@ -12,8 +12,8 @@ def main() -> None:
     Главная функция
     :return: None
     """
-
     root = MyWindow()
+
     root.mainloop()
 
 

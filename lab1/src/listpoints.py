@@ -1,5 +1,5 @@
+import tkinter as tk
 from tkinter import ttk
-from tkinter import *
 
 
 class ListPoints(ttk.Treeview):
@@ -40,7 +40,7 @@ class ListPoints(ttk.Treeview):
         :return: None
         """
         index = len(self.get_children()) + 1
-        self.insert("", END, values=(index, str(point)))
+        self.insert("", tk.END, values=(index, str(point)))
 
     def del_point(self, n: int) -> None:
         """

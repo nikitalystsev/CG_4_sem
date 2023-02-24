@@ -1,8 +1,8 @@
-from tkinter import *
-from tkinter import messagebox
+import tkinter as tk
+# from tkinter import messagebox
 
 
-class PlaneCanvas(Canvas):
+class PlaneCanvas(tk.Canvas):
     """
     Плоскость
     """
@@ -91,9 +91,9 @@ class PlaneCanvas(Canvas):
 
         # горизонтальная линия - ось абсцисс
         self.create_line(0, self.height - self.axis_space, self.width, self.height - self.axis_space, width=2,
-                         arrow=LAST)
+                         arrow=tk.LAST)
         # вертикальная линия - ось ординат
-        self.create_line(self.axis_space, self.height, self.axis_space, 0, width=2, arrow=LAST)
+        self.create_line(self.axis_space, self.height, self.axis_space, 0, width=2, arrow=tk.LAST)
 
     def to_origin_x(self, canvas_x: float) -> float:
         """
@@ -187,7 +187,7 @@ class PlaneCanvas(Canvas):
         :param color: цвет точки
         :return: None
         """
-        self.delete(ALL)  # очищаю весь холст
+        self.delete(tk.ALL)  # очищаю весь холст
         # добавляю точку ко множеству точек (первому или второму)
         self.set1.append((0, origin_x, origin_y)) if color == "#FFA500" else self.set2.append((0, origin_x, origin_y))
         self.scaling()  # выполняется масштабирование
@@ -211,7 +211,7 @@ class PlaneCanvas(Canvas):
         else:
             self.set2.insert(n - 1, (0, new_origin_x, new_origin_y))
 
-        self.delete(ALL)
+        self.delete(tk.ALL)
         self.scaling()  # выполняется масштабирование
         self.draw_axis()  # рисуются координатные оси, с промежуточными значениями, соответствующими масштабу
         self.draw_set_points()
@@ -226,7 +226,7 @@ class PlaneCanvas(Canvas):
         self.delete(self.set1[n - 1][0]) if color == "#FFA500" else self.delete(self.set2[n - 1][0])
         self.set1.pop(n - 1) if color == "#FFA500" else self.set2.pop(n - 1)
 
-        self.delete(ALL)
+        self.delete(tk.ALL)
         self.scaling()  # выполняется масштабирование
         self.draw_axis()  # рисуются координатные оси, с промежуточными значениями, соответствующими масштабу
         self.draw_set_points()  # отображаем неудаленные точки

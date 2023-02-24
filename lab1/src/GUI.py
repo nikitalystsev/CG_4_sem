@@ -1,4 +1,4 @@
-import tkinter as tk
+from tkinter import messagebox
 from plane import *
 from listpoints import *
 from checks import *
@@ -141,6 +141,8 @@ class MyWindow(tk.Tk):
         scroll_set2.pack(side=tk.RIGHT, fill=tk.Y)
         # -----------------------------------------------
 
+        # виджеты доп. кнопок
+        # -----------------------------------------------
         frame_tasks = self.create_frame_widgets()
         frame_tasks.pack()
 
