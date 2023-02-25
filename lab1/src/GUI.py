@@ -1,10 +1,6 @@
-from tkinter import messagebox
 from plane import *
 from listpoints import *
 from checks import *
-
-COLOR_SET1 = "#FFA500"
-COLOR_SET2 = "#8B0000"
 
 
 class MyWindow(tk.Tk):
@@ -150,17 +146,14 @@ class MyWindow(tk.Tk):
                                    relief=tk.RAISED, bg="#FFFFFF")
         self.btn_clean.grid(row=0, column=0, columnspan=2, sticky='wens')
 
-        self.btn_build_trian = tk.Button(frame_tasks, text="Построить треуг-к", font=("Courier New", 12),
-                                         relief=tk.RAISED, bg="#FFFFFF")
-        self.btn_build_trian.grid(row=0, column=2, columnspan=2, sticky='wens')
-
-        self.btn_print_res = tk.Button(frame_tasks, text="Вывести результаты", font=("Courier New", 12),
-                                       relief=tk.RAISED, bg="#FFFFFF")
-        self.btn_print_res.grid(row=1, column=0, columnspan=2, sticky='wens')
-
         self.btn_task = tk.Button(frame_tasks, text="Условие задачи", font=("Courier New", 12),
                                   relief=tk.RAISED, bg="#FFFFFF")
-        self.btn_task.grid(row=1, column=2, columnspan=2, sticky='wens')
+        self.btn_task.grid(row=0, column=2, columnspan=2, sticky='wens')
+
+        self.btn_print_res = tk.Button(frame_tasks, text="Вывести результаты", font=("Courier New", 12),
+                                       relief=tk.RAISED, bg="#FFFFFF", command=lambda: self.plane.draw_solve())
+        self.btn_print_res.grid(row=1, column=0, columnspan=4, sticky='wens')
+
         # -----------------------------------------------
 
         # работа с plane
@@ -383,10 +376,10 @@ class MyWindow(tk.Tk):
             x, y = float(x), float(y)
             if self.rbt_var.get() == "Первое множество":
                 self.listpoints_set1.add_point((x, y))
-                self.plane.draw_point(x, y, color=COLOR_SET1)
+                self.plane.draw_point(x, y, color=BLUE)
             else:
                 self.listpoints_set2.add_point((x, y))
-                self.plane.draw_point(x, y, color=COLOR_SET2)
+                self.plane.draw_point(x, y, color=RED)
 
     def del_if_valid_num(self, table: ListPoints, n: int, color: str) -> None:
         """
@@ -414,9 +407,9 @@ class MyWindow(tk.Tk):
         if self.is_int(n):
             n = int(n)
             if self.rbt_var.get() == "Первое множество":
-                self.del_if_valid_num(self.listpoints_set1, n, color=COLOR_SET1)
+                self.del_if_valid_num(self.listpoints_set1, n, color=BLUE)
             else:
-                self.del_if_valid_num(self.listpoints_set2, n, color=COLOR_SET2)
+                self.del_if_valid_num(self.listpoints_set2, n, color=RED)
 
     def change_if_valid_num(self, table: ListPoints,
                             num: int,
@@ -451,6 +444,6 @@ class MyWindow(tk.Tk):
         if self.is_int(n) and self.check_input_point(x, y):
             n, x, y = int(n), float(x), float(y)
             if self.rbt_var.get() == "Первое множество":
-                self.change_if_valid_num(self.listpoints_set1, n, x, y, color=COLOR_SET1)
+                self.change_if_valid_num(self.listpoints_set1, n, x, y, color=BLUE)
             else:
-                self.change_if_valid_num(self.listpoints_set2, n, x, y, color=COLOR_SET2)
+                self.change_if_valid_num(self.listpoints_set2, n, x, y, color=RED)
