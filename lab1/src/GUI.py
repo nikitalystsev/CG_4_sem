@@ -142,13 +142,10 @@ class MyWindow(tk.Tk):
         frame_tasks = self.create_frame_widgets()
         frame_tasks.pack()
 
-        self.btn_clean = tk.Button(frame_tasks, text="Очистить все поля", font=("Courier New", 12),
-                                   relief=tk.RAISED, bg="#FFFFFF")
-        self.btn_clean.grid(row=0, column=0, columnspan=2, sticky='wens')
-
         self.btn_task = tk.Button(frame_tasks, text="Условие задачи", font=("Courier New", 12),
                                   relief=tk.RAISED, bg="#FFFFFF")
-        self.btn_task.grid(row=0, column=2, columnspan=2, sticky='wens')
+        self.btn_task.config(command=lambda: MyWindow.print_task())
+        self.btn_task.grid(row=0, column=0, columnspan=4, sticky='wens')
 
         self.btn_print_res = tk.Button(frame_tasks, text="Вывести результаты", font=("Courier New", 12),
                                        relief=tk.RAISED, bg="#FFFFFF", command=lambda: self.plane.draw_solve())
@@ -447,3 +444,14 @@ class MyWindow(tk.Tk):
                 self.change_if_valid_num(self.listpoints_set1, n, x, y, color=BLUE)
             else:
                 self.change_if_valid_num(self.listpoints_set2, n, x, y, color=RED)
+
+    @staticmethod
+    def print_task():
+        """
+        Метод выводи условие задачи
+        """
+        messagebox.showinfo("task", "На плоскости даны два множества точек. "
+                                    "Найти пару треугольников (каждый треугольник в качестве вершин имеет три "
+                                    "различные точки одного и того же множества; "
+                                    "треугольники строятся на точках различных множеств) таких, что прямая, "
+                                    "соединяющая точки пересечения высот, образует минимальный угол с осью абсцисс")
