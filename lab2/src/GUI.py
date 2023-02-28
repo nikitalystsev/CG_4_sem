@@ -170,6 +170,24 @@ class MyWindow(tk.Tk):
         self.btn_change_param_figure = self.draw_button("Применить изменения")
         self.btn_change_param_figure.config(command=lambda: self.change_param_figure())
         self.btn_change_param_figure.grid(row=18, column=0, columnspan=4, sticky='wens')
+        # -----------------------------------------------
+
+        self.lbl_param_figure = self.draw_label("Центральная точка фигуры")
+        self.lbl_param_figure.config(font=("Courier New", 14, 'bold', "underline"))
+        self.lbl_param_figure.grid(row=19, column=0, columnspan=4, sticky='wens')
+
+        self.text_varx, self.text_vary = tk.StringVar(), tk.StringVar()
+
+        self.text_varx.set(f"X: {round(self.plane.figure.center_figure.x, 2)}")
+        self.text_vary.set(f"Y: {round(self.plane.figure.center_figure.y, 2)}")
+
+        self.lbl_center_x = self.draw_label("")
+        self.lbl_center_x.config(textvariable=self.text_varx)
+        self.lbl_center_x.grid(row=20, column=0, columnspan=2, sticky='wens')
+
+        self.lbl_center_y = self.draw_label("")
+        self.lbl_center_y.config(textvariable=self.text_vary)
+        self.lbl_center_y.grid(row=20, column=2, columnspan=2, sticky='wens')
 
     def create_frame_plane(self) -> tk.Frame:
         """
@@ -336,6 +354,7 @@ class MyWindow(tk.Tk):
         center_rotate = Point(x=rot_xc, y=rot_yc)
 
         self.plane.rotate_figure(center_rotate, angle)
+        self.get_center_figure()
 
     def transfer_figure(self) -> None:
         """
@@ -353,6 +372,7 @@ class MyWindow(tk.Tk):
         dx, dy = float(dx), float(dy)
 
         self.plane.transfer_figure(dx, dy)
+        self.get_center_figure()
 
     def scaling_figure(self) -> None:
         """
@@ -379,12 +399,14 @@ class MyWindow(tk.Tk):
         xc, yc = float(xc), float(yc)
 
         self.plane.scaling_figure(kx, ky, xc, yc)
+        self.get_center_figure()
 
     def step_back(self) -> None:
         """
         Метод возвращает предыдущее состояние фигуры
         """
         self.plane.step_back()
+        self.get_center_figure()
 
     def change_param_figure(self) -> None:
         """
@@ -395,3 +417,12 @@ class MyWindow(tk.Tk):
         x_inters = float(self.entry_get_x_inters.get())
 
         self.plane.change_param_figure(a, b, xc_ellipse, yc_ellipse, x_inters)
+        self.get_center_figure()
+
+    def get_center_figure(self):
+        """
+        Метод получает центр фигуры для вывода
+        """
+        point_center = self.plane.figure.get_center_figure()
+        self.text_varx.set(f"X: {round(point_center.x, 2)}")
+        self.text_vary.set(f"y: {round(point_center.y, 2)}")
