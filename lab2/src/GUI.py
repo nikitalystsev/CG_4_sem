@@ -14,7 +14,7 @@ class MyWindow(tk.Tk):
         Инициализация атрибутов класса
         """
         super().__init__()
-        self.title("Лабораторная №2")
+        self.title("Лабораторная №2, 20-й вариант, Лысцев Никита ИУ7-43Б")
 
         root_width = self.winfo_screenwidth()
         root_height = self.winfo_screenheight() - 65
