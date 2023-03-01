@@ -13,9 +13,9 @@ class MyWindow(tk.Tk):
         Инициализация атрибутов класса
         """
         super().__init__()
-        self.title("Лабораторная №1")
+        self.title("Лабораторная №1, 20-й вариант, Лысцев Никита ИУ7-43Б")
         root_width = self.winfo_screenwidth()
-        root_height = self.winfo_screenheight()
+        root_height = self.winfo_screenheight() - 65
         self.geometry(f"{root_width}x{root_height}+0+0")
         self.resizable(width=False, height=False)
 
@@ -32,6 +32,7 @@ class MyWindow(tk.Tk):
         # виджеты для добавления точки
         # -----------------------------------------------
         self.lbl_add_point = self.draw_label("Добавить точку")
+        self.lbl_add_point.config(font=("Courier New", 14, 'bold', "underline"))
         self.lbl_add_point.grid(row=0, column=0, columnspan=4, sticky='wens')
 
         self.lbl_add_x = self.draw_label("X:")
@@ -66,6 +67,7 @@ class MyWindow(tk.Tk):
         # виджет удаления точки по номеру
         # -----------------------------------------------
         self.lbl_del_point = self.draw_label("Удалить точку")
+        self.lbl_del_point.config(font=("Courier New", 14, 'bold', "underline"))
         self.lbl_del_point.grid(row=4, column=0, columnspan=4, sticky='wens')
 
         self.lbl_n_del = self.draw_label("Номер точки:")
@@ -82,6 +84,7 @@ class MyWindow(tk.Tk):
         # виджеты изменения точки
         # -----------------------------------------------
         self.lbl_change_point = self.draw_label("Изменить точку")
+        self.lbl_change_point.config(font=("Courier New", 14, 'bold', "underline"))
         self.lbl_change_point.grid(row=7, column=0, columnspan=4, sticky='wens')
 
         self.lbl_n_change = self.draw_label("Номер точки:")
@@ -110,9 +113,11 @@ class MyWindow(tk.Tk):
         # виджеты отображения точек
         # -----------------------------------------------
         self.lbl_set1 = self.draw_label("Первое множество")
+        self.lbl_set1.config(font=("Courier New", 14, 'bold', "underline"))
         self.lbl_set1.grid(row=11, column=0, sticky='wens', columnspan=2)
 
         self.lbl_set2 = self.draw_label("Второе множество")
+        self.lbl_set2.config(font=("Courier New", 14, 'bold', "underline"))
         self.lbl_set2.grid(row=11, column=2, sticky='wens', columnspan=2)
 
         self.columns = "number", "point"
@@ -152,10 +157,6 @@ class MyWindow(tk.Tk):
         self.btn_print_res.grid(row=1, column=0, columnspan=4, sticky='wens')
 
         # -----------------------------------------------
-
-        # работа с plane
-        # -----------------------------------------------
-        self.plane.draw_axis()
 
     def create_frame_plane(self) -> tk.Frame:
         """
@@ -201,9 +202,8 @@ class MyWindow(tk.Tk):
         plane_height = self.frame_plane.winfo_screenheight() - 70
 
         plane = PlaneCanvas(
-            y_min=0,
+            y_min=-10,
             y_max=10,
-            x_min=0,
             master=self.frame_plane,
             width=plane_width,
             height=plane_height,

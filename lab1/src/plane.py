@@ -14,6 +14,16 @@ WHITE = "#FFFFFF"
 BLACK = "#000000"
 Aquamarine = "#7FFFD4"
 LightCyan = "#E0FFFF"
+SILVER = "#C0C0C0"
+
+EPS = 1e-9
+
+
+def float_equal(a, b):
+    """
+    Функция сравнивает вещественные числа
+    """
+    return abs(a - b) < EPS
 
 
 class PlaneCanvas(tk.Canvas):
@@ -21,7 +31,7 @@ class PlaneCanvas(tk.Canvas):
     Плоскость
     """
 
-    def __init__(self, y_min, y_max, x_min, master=None, **kwargs):
+    def __init__(self, y_min, y_max, grid_step=50, master=None, **kwargs):
         """
         Инициализация атрибутов класса
         :param y_min: желаемая минимальная ордината
@@ -35,26 +45,32 @@ class PlaneCanvas(tk.Canvas):
         self.height = kwargs.get("height")
         self.y_min = y_min
         self.y_max = y_max
-        self.x_min = x_min
-        self.x_max = self.get_x_max()
-        self.axis_space = 10
-        self.set1 = []
-        self.set2 = []
-        self.other_points = []
+        self.x_max, self.x_min = self.get_x_coord()
+        self.grid_step = grid_step
         self.km = self.get_km()
         self.task = Task()
+        self.draw_grid()
 
-    def get_x_max(self) -> float:
-        """
-        Метод получает максимальное значение абсциссы
-        в зависимости от максимальной ординаты
-        (для соблюдения правильного масштаба)
-        :return: максимальное значение абсциссы
-        """
+    def get_x_coord(self):
         axis_coef = self.width / self.height
-        x_max = axis_coef * self.y_max
+        x_max = self.y_max * axis_coef
+        x_min = -x_max
 
-        return x_max
+        return x_max, x_min
+
+    def get_scal_coord(self, max_coord: float, is_x: bool):
+        """
+        Метод вычисляет масштабируемые координаты
+        """
+        if is_x:
+            axis_coef = self.height / self.width
+            y_max = max_coord * axis_coef
+            return max_coord, y_max, -max_coord, -y_max
+
+        axis_coef = self.width / self.height
+        x_max = max_coord * axis_coef
+
+        return x_max, max_coord, -x_max, -max_coord
 
     def get_km(self) -> float:
         """
@@ -74,50 +90,54 @@ class PlaneCanvas(tk.Canvas):
         Метод масштабирует плоскость
         :return: None
         """
-        x_s = [x for x, _ in self.task.set1]
-        x_s.extend([x for x, _ in self.task.set2])
-        x_s.extend([x for x, _ in self.task.other_points])
+        x_s = [point.x for point in self.task.set1]
+        x_s.extend([point.x for point in self.task.set2])
+        x_s.extend([point.x for point in self.task.inters_h])
 
-        y_s = [y for _, y in self.task.set1]
-        y_s.extend([y for _, y in self.task.set2])
-        y_s.extend([y for _, y in self.task.other_points])
+        y_s = [point.y for point in self.task.set1]
+        y_s.extend([point.y for point in self.task.set2])
+        y_s.extend([point.y for point in self.task.inters_h])
 
         if len(x_s) == 0 or len(y_s) == 0:
-            self.y_max, self.y_min = 10, 0
-            self.x_max, self.x_min = 14.3, 0
+            self.y_max, self.y_min = 10, -10
+            self.x_max, self.x_min = self.get_x_coord()
         else:
-            self.y_max = max(y_s) + CONST_SCALE
-            self.y_min = min(y_s) - CONST_SCALE
-            self.x_max = max(x_s) + CONST_SCALE
-            self.x_min = min(x_s) - CONST_SCALE
+            x_max, y_max = max(map(abs, x_s)), max(map(abs, y_s))
+            if x_max > y_max:
+                self.x_max, self.y_max, self.x_min, self.y_min = self.get_scal_coord(x_max, True)
+            else:
+                self.x_max, self.y_max, self.x_min, self.y_min = self.get_scal_coord(y_max, False)
 
         self.km = self.get_km()
 
-    def draw_axis(self) -> None:
+    def draw_grid(self) -> None:
         """
-        Метод строит координатные оси на плоскости
-        :return: None
+        Метод отображает сетку на плоскости и координатные оси
         """
-        for i in range(0, self.height, 50):
-            self.create_line(7, self.height - i, 13, self.height - i, width=2)
-            if i != 0:
-                origin_y = self.to_origin_y(self.height - i + self.axis_space)
-                text = str(round(origin_y, 2))
-                self.create_text(14, self.height - i, text=text, anchor='w')
 
-        for i in range(0, self.width, 50):
-            self.create_line(i, self.height - 7, i, self.height - 13, width=2)
-            if i != 0:
-                origin_x = self.to_origin_x(i - self.axis_space)
-                text = str(round(origin_x, 2))
-                self.create_text(i, self.height - 20, text=text)
+        # Рисуем вертикальные линии с шагом grid_step
+        for x in range(self.width // 2, self.width, self.grid_step):
+            self.create_line(x, 0, x, self.height, fill=SILVER)  # вправо
+            self.create_line(self.width - x, 0, self.width - x, self.height, fill=SILVER)  # влево
+            origin_x_left, origin_x_right = self.to_origin_x(self.width - x), self.to_origin_x(x)
+            text_left, text_right = f"{round(origin_x_left, 2)}", f"{round(origin_x_right, 2)}"
+            self.create_text(x, self.height // 2 - 10, text=text_right)
+            self.create_text(self.width - x, self.height // 2 - 10, text=text_left)
 
-        # горизонтальная линия - ось абсцисс
-        self.create_line(0, self.height - self.axis_space, self.width,
-                         self.height - self.axis_space, width=2, arrow=tk.LAST)
-        # вертикальная линия - ось ординат
-        self.create_line(self.axis_space, self.height,
-                         self.axis_space, 0, width=2, arrow=tk.LAST)
+        # Рисуем горизонтальные линии с шагом grid_step
+        for y in range(self.height // 2, self.height, self.grid_step):
+            self.create_line(0, y, self.width, y, fill=SILVER)
+            self.create_line(0, self.height - y, self.width, self.height - y, fill=SILVER)
+            origin_y_up, origin_y_down = self.to_origin_y(self.height - y), self.to_origin_y(y)
+            text_up, text_dowm = f"{round(origin_y_up, 2)}", f"{round(origin_y_down, 2)}"
+            if not float_equal(origin_y_up, 0) and not float_equal(origin_y_down, 0):
+                self.create_text(self.width // 2 + 14, y, text=text_dowm)
+                self.create_text(self.width // 2 + 14, self.height - y, text=text_up)
+        # Рисуем оси координат
+        # ось ординат
+        self.create_line(self.width / 2, self.height, self.width / 2, 0, width=2, arrow="last", fill="black")
+        # ось абсцисс
+        self.create_line(0, self.height / 2, self.width, self.height / 2, width=2, arrow="last", fill="black")
 
     def to_origin_x(self, canvas_x: float) -> float:
         """
@@ -162,7 +182,7 @@ class PlaneCanvas(tk.Canvas):
         """
         canvas_x = int(0 + (origin_x - self.x_min) * self.km)
 
-        return canvas_x + self.axis_space
+        return canvas_x
 
     def to_canvas_y(self, origin_y: float) -> float:
         """
@@ -173,7 +193,7 @@ class PlaneCanvas(tk.Canvas):
         """
         canvas_y = int(0 + (self.y_max - origin_y) * self.km)
 
-        return canvas_y - self.axis_space
+        return canvas_y
 
     def to_canvas_coords(self, x: float, y: float) -> (float, float):
         """
@@ -186,22 +206,26 @@ class PlaneCanvas(tk.Canvas):
 
         return self.to_canvas_x(x), self.to_canvas_y(y)
 
-    def draw_list_points(self, list_coords, list_points, color) -> None:
+    def create_point(self, x0: float, y0: float, color: str = 'red') -> None:
+        """
+        Метод отображает точку на плоскости
+        """
+        self.create_oval(x0 - 3, y0 - 3, x0 + 3, y0 + 3,
+                         fill=color, outline=color)
+
+    def draw_list_points(self, list_points: list[Point], color) -> None:
         """
         Метод отображает список точек на холсте
-        :param list_coords: список координат точек
         :param list_points: список точек
         :param color: цвет точек
         :return: None
         """
-        for i, point in enumerate(list_coords):
-            canvas_x, canvas_y = self.to_canvas_coords(point[0], point[1])
-            text = f"{i + 1}.({round(point[0], 2)};{round(point[1], 2)})"
-            point = self.create_oval(canvas_x - 3, canvas_y - 3, canvas_x + 3,
-                                     canvas_y + 3, fill=color, outline=color)
+        for i, point in enumerate(list_points):
+            canvas_x, canvas_y = self.to_canvas_coords(point.x, point.y)
+            text = f"{i + 1}.({round(point.x, 2)};{round(point.y, 2)})"
+            self.create_point(canvas_x, canvas_y, color=color)
             self.create_text(canvas_x + 5, canvas_y - 10, text=text,
                              fill=color, font=("Courier New", 5))
-            list_points[i] = point
 
     def draw_set_points(self) -> None:
         """
@@ -209,12 +233,11 @@ class PlaneCanvas(tk.Canvas):
         :return: None
         """
         # отображение первого множества точек
-        self.draw_list_points(self.task.set1, self.set1, BLUE)
+        self.draw_list_points(self.task.set1, BLUE)
         # отображение второго множества точек
-        self.draw_list_points(self.task.set2, self.set2, RED)
+        self.draw_list_points(self.task.set2, RED)
         # отображение прочих точек
-        self.draw_list_points(self.task.other_points,
-                              self.other_points, DARKCYAN)
+        self.draw_list_points(self.task.inters_h, DARKCYAN)
 
     def draw_point(self, origin_x: float, origin_y: float, color: str) -> None:
         """
@@ -228,22 +251,18 @@ class PlaneCanvas(tk.Canvas):
 
         # добавляю точку ко множеству точек (первому или второму)
         if color == BLUE:  # первое множество точек
-            self.task.set1.append((origin_x, origin_y))
-            self.set1.append(0)
+            self.task.set1.append(Point(origin_x, origin_y))
         elif color == RED:  # второе множество точек
-            self.task.set2.append((origin_x, origin_y))
-            self.set2.append(0)
+            self.task.set2.append(Point(origin_x, origin_y))
         else:  # прочие точки
-            if len(self.other_points) == 2:
-                self.other_points = []
-                self.task.other_points = []
-            self.task.other_points.append((origin_x, origin_y))
-            self.other_points.append(0)
+            if len(self.task.inters_h) == 2:
+                self.task.inters_h = []
+            self.task.inters_h.append(Point(origin_x, origin_y))
 
         self.scaling()  # выполняется масштабирование
         # рисуются координатные оси, с промежуточными значениями,
         # соответствующими масштабу
-        self.draw_axis()
+        self.draw_grid()
         self.draw_set_points()  # отображаю имеющиеся точки
 
     def change_point(self, n: int, new_origin_x: float,
@@ -261,14 +280,11 @@ class PlaneCanvas(tk.Canvas):
 
         # Изменяю данные точки (первого или второго множества)
         if color == BLUE:
-            self.task.set1.insert(n - 1, (new_origin_x, new_origin_y))
-            self.set1.insert(n - 1, 0)
+            self.task.set1.insert(n - 1, Point(new_origin_x, new_origin_y))
         else:
-            self.task.set2.insert(n - 1, (new_origin_x, new_origin_y))
-            self.set2.insert(n - 1, 0)
+            self.task.set2.insert(n - 1, Point(new_origin_x, new_origin_y))
 
-        self.other_points = []
-        self.task.other_points = []
+        self.task.inters_h = []
 
         self.task.default_task_param()
 
@@ -276,7 +292,7 @@ class PlaneCanvas(tk.Canvas):
         self.scaling()  # выполняется масштабирование
         # рисуются координатные оси, с промежуточными значениями,
         # соответствующими масштабу
-        self.draw_axis()
+        self.draw_grid()
         self.draw_set_points()  # отображаю имеющиеся точки
 
     def del_point(self, n: int, color: str) -> None:
@@ -286,17 +302,10 @@ class PlaneCanvas(tk.Canvas):
         :param color: цвет точки
         :return: None
         """
-        # удаляю точку с холста
-        self.delete(self.set1[n - 1]) if color == BLUE else \
-            self.delete(self.set2[n - 1])
         # удаляю точку со списка с координатами
-        self.task.set1.pop(n - 1) if color == BLUE else \
-            self.task.set2.pop(n - 1)
-        # удаляю точку со списка с тегами точек для холста
-        self.set1.pop(n - 1) if color == BLUE else self.set2.pop(n - 1)
+        self.task.set1.pop(n - 1) if color == BLUE else self.task.set2.pop(n - 1)
 
-        self.other_points = []
-        self.task.other_points = []
+        self.task.inters_h = []
 
         self.task.default_task_param()
 
@@ -304,10 +313,11 @@ class PlaneCanvas(tk.Canvas):
         self.scaling()  # выполняется масштабирование
         # рисуются координатные оси, с промежуточными значениями,
         # соответствующими масштабу
-        self.draw_axis()
+        self.draw_grid()
         self.draw_set_points()  # отображаем неудаленные точки
 
-    def draw_triangle(self, point1, point2, point3, color: str) -> None:
+    def draw_triangle(self, point1: Point, point2: Point,
+                      point3: Point, color: str) -> None:
         """
         Метод строит треугольник по трем точкам
         :param point1: первая точка
@@ -316,13 +326,13 @@ class PlaneCanvas(tk.Canvas):
         :param color: цвет треугольника
         :return: None
         """
-        x1, y1 = self.to_canvas_coords(point1[0], point1[1])
-        x2, y2 = self.to_canvas_coords(point2[0], point2[1])
-        x3, y3 = self.to_canvas_coords(point3[0], point3[1])
+        x1, y1 = self.to_canvas_coords(point1.x, point1.y)
+        x2, y2 = self.to_canvas_coords(point2.x, point2.y)
+        x3, y3 = self.to_canvas_coords(point3.x, point3.y)
 
-        self.create_line(x1, y1, x2, y2, width=2, fill=color, smooth=True)
-        self.create_line(x2, y2, x3, y3, width=2, fill=color, smooth=True)
-        self.create_line(x3, y3, x1, y1, width=2, fill=color, smooth=True)
+        self.create_line(x1, y1, x2, y2, width=2, fill=color)
+        self.create_line(x2, y2, x3, y3, width=2, fill=color)
+        self.create_line(x3, y3, x1, y1, width=2, fill=color)
 
     @staticmethod
     def get_nums_vertex(num_vertex: int):
@@ -340,44 +350,43 @@ class PlaneCanvas(tk.Canvas):
         if num_vertex == 2:
             return 2, 0, 1
 
-    def draw_height(self, triangle, num_vertex, canvas_ph, color) -> None:
+    def draw_height(self, tri, num_vertex, canvas_ph: Point, color) -> None:
         """
         Метод отображает высоту треугольника,
         проведенную из вершины с номером num_vertex
         :param color: цвет высоты
         :param canvas_ph: точка пересечения высот треугольника
-        :param triangle: треугольник
+        :param tri: треугольник
         :param num_vertex: номер вершины
         :return: None
         """
         n, m, k = self.get_nums_vertex(num_vertex)
-        canvas_x_ph, canvas_y_ph = canvas_ph[0], canvas_ph[1]
         # находим коэф-ты уравнения стороны, к которой проведем высоту
-        a_side, b_side, c_side = Task.get_coef_side(triangle[m], triangle[k])
+        a_side, b_side, c_side = Task.get_coef_side(tri[m], tri[k])
         # находим коэф-ты уравнения высоты по известным коэф-там стороны,
         # и вершины
-        a_h, b_h, c_h = Task.get_coef_h((a_side, b_side, c_side), triangle[n])
+        a_h, b_h, c_h = Task.get_coef_h((a_side, b_side, c_side), tri[n])
         # находим точку пересечения стороны и высоты
-        x_p, y_p = Task.find_point_intersection(
+        x_p, y_p = Task.find_point_inters(
             (a_side, b_side, c_side), (a_h, b_h, c_h))
         # переводим координаты в координаты холста
         canvas_x_p, canvas_y_p = self.to_canvas_coords(x_p, y_p)
         # строим высоту от точки пересечения высоты со стороной
         # до точки пересечения высот
-        self.create_line(canvas_x_p, canvas_y_p, canvas_x_ph, canvas_y_ph,
+        self.create_line(canvas_x_p, canvas_y_p, canvas_ph.x, canvas_ph.y,
                          width=2, fill=color)
 
-    def draw_heights(self, triangle, canvas_ph, color) -> None:
+    def draw_heights(self, tri, canvas_ph: Point, color) -> None:
         """
         Метод рисует все высоты треугольника
         :param color:
-        :param triangle: треугольник
+        :param tri: треугольник
         :param canvas_ph: точка пересечения высот треугольника
         :return: None
         """
-        self.draw_height(triangle, 1, canvas_ph, color)
-        self.draw_height(triangle, 2, canvas_ph, color)
-        self.draw_height(triangle, 3, canvas_ph, color)
+        self.draw_height(tri, 1, canvas_ph, color)
+        self.draw_height(tri, 2, canvas_ph, color)
+        self.draw_height(tri, 3, canvas_ph, color)
 
     def get_solve(self):
         """
@@ -390,11 +399,11 @@ class PlaneCanvas(tk.Canvas):
         triangles2 = Task.generate_triangles(self.task.set2)
 
         # найдем коэфф-ты для уравнения оси абсцисс (y = 0, A=C=0, By=0 => y=0)
-        a_x, b_x, c_x = Task.get_coef_side((0, 0), (1, 0))  # точки оси абсцисс
+        a_x, b_x, c_x = Task.get_coef_side(Point(0, 0), Point(1, 0))  # точки оси абсцисс
 
         for tr1 in triangles1:
             for tr2 in triangles2:
-                self.task.count += 1
+                self.task.save_count += 1
                 # находит точки пересечения высот обоих треугольников
                 ph1 = self.task.find_inters_heights(tr1)
                 ph2 = self.task.find_inters_heights(tr2)
@@ -407,10 +416,10 @@ class PlaneCanvas(tk.Canvas):
                 angle = Task.find_angle((a, b, c), (a_x, b_x, c_x))
 
                 # определяем минимальный угол
-                if angle < self.task.min_angle:
-                    self.task.min_angle = angle
-                    self.task.triangle1, self.task.triangle2 = tr1, tr2
-                    self.task.ph1, self.task.ph2 = ph1, ph2
+                if angle < self.task.save_min_ang:
+                    self.task.save_min_ang = angle
+                    self.task.save_tri1, self.task.save_tri2 = tr1, tr2
+                    self.task.save_ph1, self.task.save_ph2 = ph1, ph2
 
         return
 
@@ -420,28 +429,28 @@ class PlaneCanvas(tk.Canvas):
         :return: True, если ошибок нет, False - иначе
         """
 
-        if len(self.set1) == 0 and len(self.set2) == 0:
+        if len(self.task.set1) == 0 and len(self.task.set2) == 0:
             messagebox.showwarning("", "Плоскость пустая!\nДобавьте точек, чтобы получить решение задачи!")
             return False
-        elif len(self.set1) == 0:
+        elif len(self.task.set1) == 0:
             messagebox.showwarning("", f"На плоскости отсутствуют точки первого множества!\n"
                                        "Добавьте их, чтобы решить задачу!")
             return False
-        elif len(self.set2) == 0:
+        elif len(self.task.set2) == 0:
             messagebox.showwarning("", f"На плоскости отсутствуют точки второго множества!\n"
                                        "Добавьте их, чтобы решить задачу!")
             return False
-        elif 0 < len(self.set1) < 3 and 0 < len(self.set2) < 3:
+        elif 0 < len(self.task.set1) < 3 and 0 < len(self.task.set2) < 3:
             messagebox.showwarning("", "Точек обеих множеств недостаточно для построения треугольников!\n"
                                        "Для построения треугольника нужно не менее 3-х точек каждого множества!\n"
                                        "Добавьте точек, чтобы получить решение задачи!")
             return False
-        elif len(self.set1) < 3:
+        elif len(self.task.set1) < 3:
             messagebox.showwarning("", "Точек первого множества недостаточно для построения треугольника!\n"
                                        "Для построения треугольника нужно не менее 3-х точек!\n"
                                        "Добавьте точек, чтобы получить решение задачи!")
             return False
-        elif len(self.set2) < 3:
+        elif len(self.task.set2) < 3:
             messagebox.showwarning("", "Точек второго множества недостаточно для построения треугольника!\n"
                                        "Для построения треугольника нужно не менее 3-х точек!\n"
                                        "Добавьте точек, чтобы получить решение задачи!")
@@ -477,31 +486,29 @@ class PlaneCanvas(tk.Canvas):
         self.get_solve()
 
         # # отображаю точки пересечения высот
-        self.draw_point(self.task.ph1[0], self.task.ph1[1], DARKCYAN)
-        self.draw_point(self.task.ph2[0], self.task.ph2[1], DARKCYAN)
+        self.draw_point(self.task.save_ph1.x, self.task.save_ph1.y, DARKCYAN)
+        self.draw_point(self.task.save_ph2.x, self.task.save_ph2.y, DARKCYAN)
 
         # получаю координаты холста
         # для точек пересечения высот найденных треугольников
-        canvas_x_ph1, canvas_y_ph1 = self.to_canvas_coords(self.task.ph1[0], self.task.ph1[1])
-        canvas_x_ph2, canvas_y_ph2 = self.to_canvas_coords(self.task.ph2[0], self.task.ph2[1])
+        canvas_x_ph1, canvas_y_ph1 = self.to_canvas_coords(self.task.save_ph1.x, self.task.save_ph1.y)
+        canvas_x_ph2, canvas_y_ph2 = self.to_canvas_coords(self.task.save_ph2.x, self.task.save_ph2.y)
 
         # отображаю найденные треугольники
-        self.draw_triangle(self.task.triangle1[0],
-                           self.task.triangle1[1], self.task.triangle1[2], BLUE)
-        self.draw_triangle(self.task.triangle2[0], self.task.triangle2[1], self.task.triangle2[2], RED)
+        self.draw_triangle(self.task.save_tri1[0], self.task.save_tri1[1], self.task.save_tri1[2], BLUE)
+        self.draw_triangle(self.task.save_tri2[0], self.task.save_tri2[1], self.task.save_tri2[2], RED)
 
         # отображаю прямую,
         # соединяющую точку пересечения высот 2-х треугольников
-        self.create_line(canvas_x_ph1, canvas_y_ph1,
-                         canvas_x_ph2, canvas_y_ph2, width=2, fill=DARKCYAN)
+        self.create_line(canvas_x_ph1, canvas_y_ph1, canvas_x_ph2, canvas_y_ph2, width=2, fill=DARKCYAN)
 
         # первый треугольник
         # ---------------------------------------------------------------------
-        self.draw_heights(self.task.triangle1, (canvas_x_ph1, canvas_y_ph1), GREEN)
+        self.draw_heights(self.task.save_tri1, Point(canvas_x_ph1, canvas_y_ph1), GREEN)
 
         # второй треугольник
         # ---------------------------------------------------------------------
-        self.draw_heights(self.task.triangle2, (canvas_x_ph2, canvas_y_ph2), GREEN)
+        self.draw_heights(self.task.save_tri2, Point(canvas_x_ph2, canvas_y_ph2), GREEN)
 
         self.text_solve()
 
@@ -517,7 +524,7 @@ class PlaneCanvas(tk.Canvas):
                           wrap="word", font=("Courier New", 14), fg=BLACK, bg=LightCyan)
         textbox.pack()
 
-        text = f"Всего было рассмотрено {self.task.count} вариантов\n"
+        text = f"Всего было рассмотрено {self.task.save_count} вариантов\n"
         textbox.config(state=tk.NORMAL)
         textbox.insert("1.0", text)
         textbox.config(state=tk.DISABLED)
@@ -527,9 +534,10 @@ class PlaneCanvas(tk.Canvas):
         textbox.insert("2.0", text)
         textbox.config(state=tk.DISABLED)
 
-        text = f"1.({round(self.task.triangle1[0][0], 2)};{round(self.task.triangle1[0][1], 2)}), " \
-               f"2.({round(self.task.triangle1[1][0], 2)};{round(self.task.triangle1[1][1], 2)})," \
-               f"3.({round(self.task.triangle1[2][0], 2)};{round(self.task.triangle1[2][1], 2)})\n"
+        text = f"1.({round(self.task.save_tri1[0].x, 2)};{round(self.task.save_tri1[0].y, 2)}), " \
+               f"2.({round(self.task.save_tri1[1].x, 2)};{round(self.task.save_tri1[1].y, 2)})," \
+               f"3.({round(self.task.save_tri1[2].x, 2)};{round(self.task.save_tri1[2].y, 2)})\n"
+
         textbox.config(state=tk.NORMAL)
         textbox.insert("3.0", text)
         textbox.config(state=tk.DISABLED)
@@ -539,9 +547,10 @@ class PlaneCanvas(tk.Canvas):
         textbox.insert("4.0", text)
         textbox.config(state=tk.DISABLED)
 
-        text = f"1.({round(self.task.triangle2[0][0], 2)};{round(self.task.triangle2[0][1], 2)}), " \
-               f"2.({round(self.task.triangle2[1][0], 2)};{round(self.task.triangle2[1][1], 2)})," \
-               f"3.({round(self.task.triangle2[2][0], 2)};{round(self.task.triangle2[2][1], 2)})\n"
+        text = f"1.({round(self.task.save_tri2[0].x, 2)};{round(self.task.save_tri2[0].x, 2)}), " \
+               f"2.({round(self.task.save_tri2[1].x, 2)};{round(self.task.save_tri2[1].x, 2)})," \
+               f"3.({round(self.task.save_tri2[2].x, 2)};{round(self.task.save_tri2[2].x, 2)})\n"
+
         textbox.config(state=tk.NORMAL)
         textbox.insert("5.0", text)
         textbox.config(state=tk.DISABLED)
@@ -551,8 +560,9 @@ class PlaneCanvas(tk.Canvas):
         textbox.insert("6.0", text)
         textbox.config(state=tk.DISABLED)
 
-        text = f"1.({round(self.task.ph1[0], 2)};{round(self.task.ph1[1], 2)}), " \
-               f"2.({round(self.task.ph2[0], 2)};{round(self.task.ph2[1], 2)})\n"
+        text = f"1.({round(self.task.save_ph1.x, 2)};{round(self.task.save_ph1.y, 2)}), " \
+               f"2.({round(self.task.save_ph2.x, 2)};{round(self.task.save_ph2.y, 2)})\n"
+
         textbox.config(state=tk.NORMAL)
         textbox.insert("7.0", text)
         textbox.config(state=tk.DISABLED)
@@ -563,7 +573,7 @@ class PlaneCanvas(tk.Canvas):
         textbox.insert("8.0", text)
         textbox.config(state=tk.DISABLED)
 
-        text = f"angle = {round(self.task.min_angle, 3)} градуса"
+        text = f"angle = {round(self.task.save_min_ang, 3)} градуса"
         textbox.config(state=tk.NORMAL)
         textbox.insert("10.0", text)
         textbox.config(state=tk.DISABLED)
