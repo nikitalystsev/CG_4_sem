@@ -1,6 +1,7 @@
 from plane import *
 from checks import *
 from tkinter import messagebox
+from PIL import Image, ImageTk
 
 
 class MyWindow(tk.Tk):
@@ -34,7 +35,11 @@ class MyWindow(tk.Tk):
         # -----------------------------------------------
         self.lbl_image_transfer = self.draw_label("Перенос изображения")
         self.lbl_image_transfer.config(font=("Courier New", 14, 'bold', "underline"))
-        self.lbl_image_transfer.grid(row=0, column=0, columnspan=4, sticky='wens')
+        self.lbl_image_transfer.grid(row=0, column=0, columnspan=3, sticky='wens')
+
+        self.info_transfer = self.draw_button("i")
+        self.info_transfer.config(command=lambda: self.about_transfer())
+        self.info_transfer.grid(row=0, column=3, sticky='wens')
 
         self.lbl_get_dx = self.draw_label("dx:")
         self.lbl_get_dx.grid(row=1, column=0, sticky='wens')
@@ -57,7 +62,11 @@ class MyWindow(tk.Tk):
         # -----------------------------------------------
         self.lbl_scaling = self.draw_label("Масштабирование")
         self.lbl_scaling.config(font=("Courier New", 14, 'bold', "underline"))
-        self.lbl_scaling.grid(row=3, column=0, columnspan=4, sticky='wens')
+        self.lbl_scaling.grid(row=3, column=0, columnspan=3, sticky='wens')
+
+        self.info_scaling = self.draw_button("i")
+        self.info_scaling.config(command=lambda: self.about_scaling())
+        self.info_scaling.grid(row=3, column=3, sticky='wens')
 
         self.lbl_get_kx = self.draw_label("kx:")
         self.lbl_get_kx.grid(row=4, column=0, sticky='wens')
@@ -92,7 +101,11 @@ class MyWindow(tk.Tk):
         # -----------------------------------------------
         self.lbl_image_rotate = self.draw_label("Поворот изображения")
         self.lbl_image_rotate.config(font=("Courier New", 14, 'bold', "underline"))
-        self.lbl_image_rotate.grid(row=7, column=0, columnspan=4, sticky='wens')
+        self.lbl_image_rotate.grid(row=7, column=0, columnspan=3, sticky='wens')
+
+        self.info_rotate = self.draw_button("i")
+        self.info_rotate.config(command=lambda: self.about_rotate())
+        self.info_rotate.grid(row=7, column=3, sticky='wens')
 
         self.lbl_get_rot_xc = self.draw_label("x_c:")
         self.lbl_get_rot_xc.grid(row=8, column=0, sticky='wens')
@@ -121,7 +134,11 @@ class MyWindow(tk.Tk):
         # -----------------------------------------------
         self.lbl_state_figure = self.draw_label("Состояния")
         self.lbl_state_figure.config(font=("Courier New", 14, 'bold', "underline"))
-        self.lbl_state_figure.grid(row=11, column=0, columnspan=4, sticky='wens')
+        self.lbl_state_figure.grid(row=11, column=0, columnspan=3, sticky='wens')
+
+        self.info_state = self.draw_button("i")
+        self.info_state.config(command=lambda: self.about_state())
+        self.info_state.grid(row=11, column=3, sticky='wens')
 
         self.btn_step_back = self.draw_button("Шаг назад")
         self.btn_step_back.config(command=lambda: self.step_back())
@@ -132,7 +149,11 @@ class MyWindow(tk.Tk):
         # -----------------------------------------------
         self.lbl_param_figure = self.draw_label("Параметры фигуры")
         self.lbl_param_figure.config(font=("Courier New", 14, 'bold', "underline"))
-        self.lbl_param_figure.grid(row=13, column=0, columnspan=4, sticky='wens')
+        self.lbl_param_figure.grid(row=13, column=0, columnspan=3, sticky='wens')
+
+        self.info_param_figure = self.draw_button("i")
+        self.info_param_figure.config(command=lambda: self.about_param_figure())
+        self.info_param_figure.grid(row=13, column=3, sticky='wens')
 
         self.lbl_get_a = self.draw_label("a:")
         self.lbl_get_a.grid(row=14, column=0, sticky='wens')
@@ -188,6 +209,10 @@ class MyWindow(tk.Tk):
         self.lbl_center_y = self.draw_label("")
         self.lbl_center_y.config(textvariable=self.text_vary)
         self.lbl_center_y.grid(row=20, column=2, columnspan=2, sticky='wens')
+
+        self.btn_task = self.draw_button("Условие задачи")
+        self.btn_task.config(command=lambda: self.print_task())
+        self.btn_task.grid(row=21, column=0, columnspan=4, sticky='wens')
 
     def create_frame_plane(self) -> tk.Frame:
         """
@@ -349,7 +374,7 @@ class MyWindow(tk.Tk):
                                    "Пожалуйста, попробуйте снова.")
             return
 
-        rot_xc, rot_yc, angle = float(rot_xc), float(rot_yc), float(angle)
+        rot_xc, rot_yc, angle = map(float, rot_xc, rot_yc, angle)
 
         center_rotate = Point(x=rot_xc, y=rot_yc)
 
@@ -369,7 +394,7 @@ class MyWindow(tk.Tk):
                                    "Пожалуйста, попробуйте снова.")
             return
 
-        dx, dy = float(dx), float(dy)
+        dx, dy = map(float, dx, dy)
 
         self.plane.transfer_figure(dx, dy)
         self.get_center_figure()
@@ -395,8 +420,7 @@ class MyWindow(tk.Tk):
                                    "Пожалуйста, попробуйте снова.")
             return
 
-        kx, ky = float(kx), float(ky)
-        xc, yc = float(xc), float(yc)
+        kx, ky, xc, yc = map(float, kx, ky, xc, yc)
 
         self.plane.scaling_figure(kx, ky, xc, yc)
         self.get_center_figure()
@@ -412,10 +436,20 @@ class MyWindow(tk.Tk):
         """
         Метод позволяет сменить параметры фигуры
         """
-        a, b = map(float, self.get_data(self.entry_get_a, self.entry_get_b))
-        xc_ellipse, yc_ellipse = map(float, self.get_data(self.entry_get_xc_ellipse, self.entry_get_yc_ellipse))
-        x_inters = float(self.entry_get_x_inters.get())
+        a, b = self.get_data(self.entry_get_a, self.entry_get_b)
+        xc_ellipse, yc_ellipse = self.get_data(self.entry_get_xc_ellipse, self.entry_get_yc_ellipse)
+        x_inters = self.entry_get_x_inters.get()
 
+        if not self.is_float(a) or not self.is_float(b) or \
+                not self.is_float(xc_ellipse) or not self.is_float(yc_ellipse) or \
+                not self.is_float(x_inters):
+            messagebox.showwarning("Некорректные данные параметров фигуры!\n",
+                                   "Были получены некорректные данные параметров фигуры!\n"
+                                   "Ожидался ввод действительных или целых чисел. \n"
+                                   "Пожалуйста, попробуйте снова.")
+            return
+
+        a, b, xc_ellipse, yc_ellipse, x_inters = map(float, a, b, xc_ellipse, yc_ellipse, x_inters)
         self.plane.change_param_figure(a, b, xc_ellipse, yc_ellipse, x_inters)
         self.get_center_figure()
 
@@ -426,3 +460,93 @@ class MyWindow(tk.Tk):
         point_center = self.plane.figure.get_center_figure()
         self.text_varx.set(f"X: {round(point_center.x, 2)}")
         self.text_vary.set(f"y: {round(point_center.y, 2)}")
+
+    @staticmethod
+    def about_transfer():
+        """
+        Метод выводит информацию об операции переноса
+        """
+        text = "Для выполнения переноса фигуры необходимы:\n" \
+               "dx, dy - величины смещения " \
+               "по осям абсцисс и ординат соответственно."
+        messagebox.showinfo("", text)
+
+    @staticmethod
+    def about_scaling():
+        """
+        Метод выводит информацию об операции масштабирования
+        """
+        text = "Для выполнения масштабирования фигуры необходимы:\n" \
+               "Точка (x_c, y_c) - центр масштабирования, то есть точка, " \
+               "относительно которой выполняется операция масштабирования;\n" \
+               "kx, ky - коэффициенты масштабирования " \
+               "по осям абсцисс и ординат соответственно."
+        messagebox.showinfo("", text)
+
+    @staticmethod
+    def about_rotate():
+        """
+        Метод выводит информацию об операции поворота
+        """
+        text = "Для выполнения поворота фигуры необходимы:\n" \
+               "Точка (x_c, y_c) - центр поворота, то есть точка, " \
+               "относительно которой выполняется операция поворота;\n" \
+               "angle - угол, на который должен быть совершен поворот в градусах."
+        messagebox.showinfo("", text)
+
+    @staticmethod
+    def about_param_figure():
+        """
+        Метод выводит информацию о параметрах фигуры
+        """
+        text = "Параметрическое уравнение эллипса в декартовых координатах имеет вид:\n" \
+               "x = xc_ellipse + a*cos(theta)cos(phi) - b*sin(theta)*sin(phi)\n" \
+               "y = yc_ellipse + a*cos(theta)sin(phi) + b*sin(theta)*cos(phi)\n" \
+               "где:\n" \
+               "(xc_ellipse, yc_ellipse) - координаты центра эллипса;\n" \
+               "a и b - длины большой и малой полуосей соответственно;\n" \
+               "theta - угол между направлением большой полуоси эллипса и осью x, " \
+               "который изменяется от -pi/2 до pi/2 (от -90 до 90 градусов);\n" \
+               "phi - угол поворота эллипса вокруг его центра.\n\n" \
+               "Абсцисса точки пересечения прямых - абсцисса точки, " \
+               "где пересекаются прямые. Ордината точки пересечения прямых " \
+               "определяется из ординаты центра эллипса"
+
+        messagebox.showinfo("", text)
+
+    @staticmethod
+    def about_state():
+        """
+        Метод выводит информацию о том, что такое состояние
+        """
+        text = "Состояние - положение фигуры после применения одной из 3-х операций:\n" \
+               "1) Перенос;\n" \
+               "2) Масштабирование;\n" \
+               "3) Поворот.\n" \
+               "Операция возврата на один шаг назад позволяет отобразить" \
+               " на плоскости фигуру после применения к ней предыдущей операции"
+        messagebox.showinfo("", text)
+
+    @staticmethod
+    def print_task():
+        """
+        Метод выводит условие задачи
+        """
+        # создание дополнительного окна
+        window = tk.Toplevel()
+        window.grab_set()
+
+        # создание холста на окне
+        canvas = tk.Canvas(window, width=800, height=400)
+        canvas.pack()
+
+        # загрузка изображения с помощью Pillow
+        pil_image = Image.open('../lab2_task.png')
+
+        # преобразование изображения в PhotoImage
+        tk_image = ImageTk.PhotoImage(pil_image)
+
+        canvas.create_image(0, 0, anchor=tk.NW, image=tk_image)
+
+        # запуск цикла обработки событий для дополнительного окна
+        window.mainloop()

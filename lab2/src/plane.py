@@ -1,6 +1,7 @@
 import tkinter as tk
 from my_figure import *
 import numpy as np
+from tkinter import messagebox
 
 ORANGE = "#FFA500"
 RED = "#FF0000"
@@ -216,6 +217,9 @@ class PlaneCanvas(tk.Canvas):
         Метод изменяет параметры фигуры
         """
         if len(self.history.state_history) > 1:
+            text = "Изменить параметры фигуры можно лишь для изначально" \
+                   "заданного изображения фигуры!"
+            messagebox.showwarning("", text)
             return
 
         self.figure.a = a
