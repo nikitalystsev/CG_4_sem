@@ -4,7 +4,7 @@ from tkinter import ttk
 
 class ListPoints(ttk.Treeview):
     """
-    Список точек
+    Таблица со списком точек
     """
 
     def __init__(self, master=None, **kwargs):

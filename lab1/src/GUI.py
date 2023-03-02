@@ -48,7 +48,7 @@ class MyWindow(tk.Tk):
         self.entry_add_y.grid(row=1, column=3, sticky='wens')
 
         self.btn_add_point = self.draw_button("Добавить точку")
-        self.btn_add_point.config(command=lambda: self.add_point_to_listpoints())
+        self.btn_add_point.config(command=lambda: self.add_point())
         self.btn_add_point.grid(row=2, column=0, columnspan=4, sticky='wens')
         # -----------------------------------------------
 
@@ -188,8 +188,6 @@ class MyWindow(tk.Tk):
 
         for i in range(4):
             frame_widgets.columnconfigure(index=i, weight=1, minsize=99)
-
-        frame_widgets.config(bg="#C0C0C0")
 
         return frame_widgets
 
@@ -362,7 +360,7 @@ class MyWindow(tk.Tk):
 
         return True
 
-    def add_point_to_listpoints(self) -> None:
+    def add_point(self) -> None:
         """
         Метод вставляет в поле в зависимости от выбора множества
         :return: None
@@ -450,8 +448,9 @@ class MyWindow(tk.Tk):
         """
         Метод выводи условие задачи
         """
-        messagebox.showinfo("task", "На плоскости даны два множества точек. "
-                                    "Найти пару треугольников (каждый треугольник в качестве вершин имеет три "
-                                    "различные точки одного и того же множества; "
-                                    "треугольники строятся на точках различных множеств) таких, что прямая, "
-                                    "соединяющая точки пересечения высот, образует минимальный угол с осью абсцисс")
+        text = "На плоскости даны два множества точек. " \
+               "Найти пару треугольников (каждый треугольник в качестве вершин имеет три " \
+               "различные точки одного и того же множества; " \
+               "треугольники строятся на точках различных множеств) таких, что прямая, " \
+               "соединяющая точки пересечения высот, образует минимальный угол с осью абсцисс"
+        messagebox.showinfo("task", text)

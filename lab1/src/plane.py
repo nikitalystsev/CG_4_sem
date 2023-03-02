@@ -255,7 +255,7 @@ class PlaneCanvas(tk.Canvas):
             canvas_x, canvas_y = self.to_canvas_coords(point.x, point.y)
             text = f"{i + 1}.({round(point.x, 2)};{round(point.y, 2)})"
             self.create_point(canvas_x, canvas_y, color=color)
-            self.create_text(canvas_x + 5, canvas_y + 10, text=text,
+            self.create_text(canvas_x + 5, canvas_y - 10, text=text,
                              fill=color, font=("Courier New", 5))
 
     def draw_set_points(self) -> None:
@@ -285,7 +285,7 @@ class PlaneCanvas(tk.Canvas):
             self.task.set1.append(Point(origin_x, origin_y))
         elif color == RED:  # второе множество точек
             self.task.set2.append(Point(origin_x, origin_y))
-        else:  # прочие точки 
+        else:  # прочие точки
             if len(self.task.inters_h) == 2:
                 # чтобы при каждом новом отображении решения задачи
                 # старые точки пересечения высот не отображались
@@ -400,8 +400,7 @@ class PlaneCanvas(tk.Canvas):
         # и вершины
         a_h, b_h, c_h = Task.get_coef_h((a_side, b_side, c_side), tri[n])
         # находим точку пересечения стороны и высоты
-        x_p, y_p = Task.find_point_inters(
-            (a_side, b_side, c_side), (a_h, b_h, c_h))
+        x_p, y_p = Task.find_point_inters((a_side, b_side, c_side), (a_h, b_h, c_h))
         # переводим координаты в координаты холста
         canvas_x_p, canvas_y_p = self.to_canvas_coords(x_p, y_p)
         # строим высоту от точки пересечения высоты со стороной
