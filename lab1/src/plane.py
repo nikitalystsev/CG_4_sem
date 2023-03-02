@@ -2,7 +2,7 @@ from task import *
 import tkinter as tk
 from tkinter import messagebox
 
-CONST_SCALE = 5
+CONST_SCALE = 2
 
 ORANGE = "#FFA500"
 RED = "#FF0000"
@@ -51,6 +51,14 @@ class PlaneCanvas(tk.Canvas):
         self.task = Task()
         self.draw_grid()
 
+    def default_param(self):
+        """
+        Метод возвращает параметры масштаба по умолчанию
+        """
+        self.y_max, self.y_min = 10, -10
+        self.x_max, self.x_min = self.get_x_coord()
+        self.km = self.get_km()
+
     def get_x_coord(self):
         axis_coef = self.width / self.height
         x_max = self.y_max * axis_coef
@@ -64,13 +72,19 @@ class PlaneCanvas(tk.Canvas):
         """
         if is_x:
             axis_coef = self.height / self.width
-            y_max = max_coord * axis_coef
-            return max_coord, y_max, -max_coord, -y_max
+            y_max = (max_coord + CONST_SCALE) * axis_coef
+            self.x_max = max_coord + CONST_SCALE
+            self.y_max = y_max
+            self.x_min = -max_coord - CONST_SCALE
+            self.y_min = -y_max
+            return
 
         axis_coef = self.width / self.height
-        x_max = max_coord * axis_coef
-
-        return x_max, max_coord, -x_max, -max_coord
+        x_max = (max_coord + CONST_SCALE) * axis_coef
+        self.x_max = x_max
+        self.y_max = max_coord + CONST_SCALE
+        self.x_min = -x_max
+        self.y_min = -max_coord - CONST_SCALE
 
     def get_km(self) -> float:
         """
@@ -90,23 +104,23 @@ class PlaneCanvas(tk.Canvas):
         Метод масштабирует плоскость
         :return: None
         """
-        x_s = [point.x for point in self.task.set1]
-        x_s.extend([point.x for point in self.task.set2])
-        x_s.extend([point.x for point in self.task.inters_h])
-
-        y_s = [point.y for point in self.task.set1]
-        y_s.extend([point.y for point in self.task.set2])
-        y_s.extend([point.y for point in self.task.inters_h])
+        x_s = [point.x for point in self.task.set1 + self.task.set2 + self.task.inters_h]
+        y_s = [point.y for point in self.task.set1 + self.task.set2 + self.task.inters_h]
 
         if len(x_s) == 0 or len(y_s) == 0:
-            self.y_max, self.y_min = 10, -10
-            self.x_max, self.x_min = self.get_x_coord()
+            self.default_param()
+            return
+
+        point_max = Point(max(map(abs, x_s)), max(map(abs, y_s)))
+
+        if point_max == Point():
+            self.default_param()
+            return
+
+        if point_max.x > point_max.y:
+            self.get_scal_coord(max_coord=point_max.x, is_x=True)
         else:
-            x_max, y_max = max(map(abs, x_s)), max(map(abs, y_s))
-            if x_max > y_max:
-                self.x_max, self.y_max, self.x_min, self.y_min = self.get_scal_coord(x_max, True)
-            else:
-                self.x_max, self.y_max, self.x_min, self.y_min = self.get_scal_coord(y_max, False)
+            self.get_scal_coord(max_coord=point_max.y, is_x=False)
 
         self.km = self.get_km()
 
@@ -224,7 +238,7 @@ class PlaneCanvas(tk.Canvas):
             canvas_x, canvas_y = self.to_canvas_coords(point.x, point.y)
             text = f"{i + 1}.({round(point.x, 2)};{round(point.y, 2)})"
             self.create_point(canvas_x, canvas_y, color=color)
-            self.create_text(canvas_x + 5, canvas_y - 10, text=text,
+            self.create_text(canvas_x + 5, canvas_y + 10, text=text,
                              fill=color, font=("Courier New", 5))
 
     def draw_set_points(self) -> None:
