@@ -1,4 +1,3 @@
-from itertools import combinations
 import math
 
 EPS = 1e-9
@@ -55,7 +54,6 @@ class Task:
         for i in range(len(points)):
             for j in range(i + 1, len(points)):
                 for k in range(j + 1, len(points)):
-                    # Проверяем, являются ли три точки невырожденным треугольником
                     x1, y1 = points[i].x, points[i].y
                     x2, y2 = points[j].x, points[j].y
                     x3, y3 = points[k].x, points[k].y
