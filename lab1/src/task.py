@@ -37,7 +37,7 @@ class Task:
         self.save_ph2 = None
         self.save_count = 0
 
-    def default_task_param(self) -> None:
+    def default_save_param(self) -> None:
         """
         Метод приводит значения параметров задачи к начальным
         :return: None
@@ -50,15 +50,18 @@ class Task:
         self.save_count = 0
 
     @staticmethod
-    def generate_triangles(points):
+    def generate_triangles(points: list[Point]):
         triangles = []
-        for triplet in combinations(points, 3):
-            x1, y1 = triplet[0]
-            x2, y2 = triplet[1]
-            x3, y3 = triplet[2]
-            # если точки не лежат на одной прямой (соотношение 3)
-            if (x2 - x1) * (y3 - y1) != (x3 - x1) * (y2 - y1):
-                triangles.append(triplet)
+        for i in range(len(points)):
+            for j in range(i + 1, len(points)):
+                for k in range(j + 1, len(points)):
+                    # Проверяем, являются ли три точки невырожденным треугольником
+                    x1, y1 = points[i].x, points[i].y
+                    x2, y2 = points[j].x, points[j].y
+                    x3, y3 = points[k].x, points[k].y
+                    # если точки не лежат на одной прямой (соотношение 3)
+                    if (x2 - x1) * (y3 - y1) != (x3 - x1) * (y2 - y1):
+                        triangles.append((points[i], points[j], points[k]))
         return triangles
 
     # уравнение прямой, проходящей через 2 точки (соотношение 7):

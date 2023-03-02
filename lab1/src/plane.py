@@ -2,7 +2,7 @@ from task import *
 import tkinter as tk
 from tkinter import messagebox
 
-CONST_SCALE = 2
+CONST_SCALE = 5
 
 ORANGE = "#FFA500"
 RED = "#FF0000"
@@ -45,26 +45,41 @@ class PlaneCanvas(tk.Canvas):
         self.height = kwargs.get("height")
         self.y_min = y_min
         self.y_max = y_max
-        self.x_max, self.x_min = self.get_x_coord()
+        self.x_max, self.x_min = self.get_x_coord(self.y_max)
         self.grid_step = grid_step
-        self.km = self.get_km()
+        self.km = self.get_default_km()
         self.task = Task()
         self.draw_grid()
 
-    def default_param(self):
+    def get_x_coord(self, y_max: float):
+        """
+        Метод вычисляет максимальную и минимальную абсциссы
+        при заданных размерах холста
+        """
+        axis_coef = self.width / self.height
+        x_max = y_max * axis_coef
+
+        return x_max, -x_max
+
+    def get_default_km(self):
+        """
+        Метод вычисляет коэф-т масштабирования по умолчанию
+        """
+        y_max, y_min = 10, -10
+        x_max, x_min = self.get_x_coord(y_max)
+
+        kx = (self.width - 0) / (x_max - x_min)
+        ky = (self.height - 0) / (y_max - y_min)
+
+        return min(kx, ky)
+
+    def plane_default(self):
         """
         Метод возвращает параметры масштаба по умолчанию
         """
         self.y_max, self.y_min = 10, -10
-        self.x_max, self.x_min = self.get_x_coord()
-        self.km = self.get_km()
-
-    def get_x_coord(self):
-        axis_coef = self.width / self.height
-        x_max = self.y_max * axis_coef
-        x_min = -x_max
-
-        return x_max, x_min
+        self.x_max, self.x_min = self.get_x_coord(self.y_max)
+        self.km = self.get_default_km()
 
     def get_scal_coord(self, max_coord: float, is_x: bool):
         """
@@ -91,11 +106,15 @@ class PlaneCanvas(tk.Canvas):
         Функция вычисляет коэффициент масштабирования
         :return: None
         """
-        if self.x_max - self.x_min != 0 and self.y_max - self.y_min != 0:
-            kx = (self.width - 0) / (self.x_max - self.x_min)
-            ky = (self.height - 0) / (self.y_max - self.y_min)
-        else:
-            kx = ky = self.km
+        # вычисляем разности максимальных и минимальных значений
+        diff_x, diff_y = self.x_max - self.x_min, self.y_max - self.y_min
+        # определяем начальные значения коэффициентов масштабирования по осям
+        kx = ky = self.get_default_km()
+
+        # вычисляем коэффициенты масштабирования по осям
+        if not float_equal(diff_x, 0) and not float_equal(diff_y, 0):
+            kx = (self.width - 0) / diff_x
+            ky = (self.height - 0) / diff_y
 
         return min(kx, ky)
 
@@ -104,23 +123,21 @@ class PlaneCanvas(tk.Canvas):
         Метод масштабирует плоскость
         :return: None
         """
-        x_s = [point.x for point in self.task.set1 + self.task.set2 + self.task.inters_h]
-        y_s = [point.y for point in self.task.set1 + self.task.set2 + self.task.inters_h]
+        list_points = self.task.set1 + self.task.set2 + self.task.inters_h
+
+        x_s = [point.x for point in list_points]
+        y_s = [point.y for point in list_points]
 
         if len(x_s) == 0 or len(y_s) == 0:
-            self.default_param()
+            self.plane_default()
             return
 
-        point_max = Point(max(map(abs, x_s)), max(map(abs, y_s)))
+        x_max, y_max = max(map(abs, x_s)), max(map(abs, y_s))
 
-        if point_max == Point():
-            self.default_param()
-            return
-
-        if point_max.x > point_max.y:
-            self.get_scal_coord(max_coord=point_max.x, is_x=True)
+        if x_max > y_max:
+            self.get_scal_coord(max_coord=x_max, is_x=True)
         else:
-            self.get_scal_coord(max_coord=point_max.y, is_x=False)
+            self.get_scal_coord(max_coord=y_max, is_x=False)
 
         self.km = self.get_km()
 
@@ -268,8 +285,10 @@ class PlaneCanvas(tk.Canvas):
             self.task.set1.append(Point(origin_x, origin_y))
         elif color == RED:  # второе множество точек
             self.task.set2.append(Point(origin_x, origin_y))
-        else:  # прочие точки
+        else:  # прочие точки 
             if len(self.task.inters_h) == 2:
+                # чтобы при каждом новом отображении решения задачи
+                # старые точки пересечения высот не отображались
                 self.task.inters_h = []
             self.task.inters_h.append(Point(origin_x, origin_y))
 
@@ -300,7 +319,7 @@ class PlaneCanvas(tk.Canvas):
 
         self.task.inters_h = []
 
-        self.task.default_task_param()
+        self.task.default_save_param()
 
         self.delete(tk.ALL)  # очищаю холст
         self.scaling()  # выполняется масштабирование
@@ -321,7 +340,7 @@ class PlaneCanvas(tk.Canvas):
 
         self.task.inters_h = []
 
-        self.task.default_task_param()
+        self.task.default_save_param()
 
         self.delete(tk.ALL)  # очищаю холст
         self.scaling()  # выполняется масштабирование
@@ -409,18 +428,18 @@ class PlaneCanvas(tk.Canvas):
         """
 
         # генерируются всевозможные валидные треугольники
-        triangles1 = Task.generate_triangles(self.task.set1)
-        triangles2 = Task.generate_triangles(self.task.set2)
+        tri_s1 = Task.generate_triangles(self.task.set1)
+        tri_s2 = Task.generate_triangles(self.task.set2)
 
         # найдем коэфф-ты для уравнения оси абсцисс (y = 0, A=C=0, By=0 => y=0)
         a_x, b_x, c_x = Task.get_coef_side(Point(0, 0), Point(1, 0))  # точки оси абсцисс
 
-        for tr1 in triangles1:
-            for tr2 in triangles2:
+        for tri1 in tri_s1:
+            for tri2 in tri_s2:
                 self.task.save_count += 1
                 # находит точки пересечения высот обоих треугольников
-                ph1 = self.task.find_inters_heights(tr1)
-                ph2 = self.task.find_inters_heights(tr2)
+                ph1 = self.task.find_inters_heights(tri1)
+                ph2 = self.task.find_inters_heights(tri2)
 
                 # найдем коэффициенты прямой,
                 # проходящей через точки пересечения высот двух треугольников
@@ -432,7 +451,7 @@ class PlaneCanvas(tk.Canvas):
                 # определяем минимальный угол
                 if angle < self.task.save_min_ang:
                     self.task.save_min_ang = angle
-                    self.task.save_tri1, self.task.save_tri2 = tr1, tr2
+                    self.task.save_tri1, self.task.save_tri2 = tri1, tri2
                     self.task.save_ph1, self.task.save_ph2 = ph1, ph2
 
         return
@@ -444,46 +463,56 @@ class PlaneCanvas(tk.Canvas):
         """
 
         if len(self.task.set1) == 0 and len(self.task.set2) == 0:
-            messagebox.showwarning("", "Плоскость пустая!\nДобавьте точек, чтобы получить решение задачи!")
+            text = "Плоскость пустая!\n" \
+                   "Добавьте точек, чтобы получить решение задачи!"
+            messagebox.showwarning("", text)
             return False
         elif len(self.task.set1) == 0:
-            messagebox.showwarning("", f"На плоскости отсутствуют точки первого множества!\n"
-                                       "Добавьте их, чтобы решить задачу!")
+            text = "На плоскости отсутствуют точки первого множества!\n" \
+                   "Добавьте их, чтобы решить задачу!"
+            messagebox.showwarning("", text)
             return False
         elif len(self.task.set2) == 0:
-            messagebox.showwarning("", f"На плоскости отсутствуют точки второго множества!\n"
-                                       "Добавьте их, чтобы решить задачу!")
+            text = "На плоскости отсутствуют точки второго множества!\n" \
+                   "Добавьте их, чтобы решить задачу!"
+            messagebox.showwarning("", text)
             return False
         elif 0 < len(self.task.set1) < 3 and 0 < len(self.task.set2) < 3:
-            messagebox.showwarning("", "Точек обеих множеств недостаточно для построения треугольников!\n"
-                                       "Для построения треугольника нужно не менее 3-х точек каждого множества!\n"
-                                       "Добавьте точек, чтобы получить решение задачи!")
+            text = "Точек обеих множеств недостаточно для построения треугольников!\n" \
+                   "Для построения треугольника нужно не менее 3-х точек каждого множества!\n" \
+                   "Добавьте точек, чтобы получить решение задачи!"
+            messagebox.showwarning("", text)
             return False
         elif len(self.task.set1) < 3:
-            messagebox.showwarning("", "Точек первого множества недостаточно для построения треугольника!\n"
-                                       "Для построения треугольника нужно не менее 3-х точек!\n"
-                                       "Добавьте точек, чтобы получить решение задачи!")
+            text = "Точек первого множества недостаточно для построения треугольника!\n" \
+                   "Для построения треугольника нужно не менее 3-х точек!\n" \
+                   "Добавьте точек, чтобы получить решение задачи!"
+            messagebox.showwarning("", text)
             return False
         elif len(self.task.set2) < 3:
-            messagebox.showwarning("", "Точек второго множества недостаточно для построения треугольника!\n"
-                                       "Для построения треугольника нужно не менее 3-х точек!\n"
-                                       "Добавьте точек, чтобы получить решение задачи!")
+            text = "Точек второго множества недостаточно для построения треугольника!\n" \
+                   "Для построения треугольника нужно не менее 3-х точек!\n" \
+                   "Добавьте точек, чтобы получить решение задачи!"
+            messagebox.showwarning("", text)
             return False
 
-        triangles1 = Task.generate_triangles(self.task.set1)
-        triangles2 = Task.generate_triangles(self.task.set2)
+        tri_s1 = Task.generate_triangles(self.task.set1)
+        tri_s2 = Task.generate_triangles(self.task.set2)
 
-        if len(triangles1) == 0 and len(triangles2) == 0:
-            messagebox.showwarning("", "Точки каждого множества лежат на одной прямой!\n"
-                                       "Добавьте других точек, чтобы получить решение задачи!")
+        if len(tri_s1) == 0 and len(tri_s2) == 0:
+            text = "Точки каждого множества лежат на одной прямой!\n" \
+                   "Добавьте других точек, чтобы получить решение задачи!"
+            messagebox.showwarning("", text)
             return False
-        elif len(triangles1) == 0:
-            messagebox.showwarning("", "Точки первого множества лежат на одной прямой!\n"
-                                       "Добавьте других точек, чтобы получить решение задачи!")
+        elif len(tri_s1) == 0:
+            text = "Точки первого множества лежат на одной прямой!\n" \
+                   "Добавьте других точек, чтобы получить решение задачи!"
+            messagebox.showwarning("", text)
             return False
-        elif len(triangles2) == 0:
-            messagebox.showwarning("", "Точки второго множества лежат на одной прямой!\n"
-                                       "Добавьте других точек, чтобы получить решение задачи!")
+        elif len(tri_s2) == 0:
+            text = "Точки второго множества лежат на одной прямой!\n" \
+                   "Добавьте других точек, чтобы получить решение задачи!"
+            messagebox.showwarning("", text)
             return False
 
         return True
@@ -534,7 +563,8 @@ class PlaneCanvas(tk.Canvas):
 
         win = tk.Toplevel()
         win.grab_set()
-        textbox = tk.Text(win, width=60, height=10, state=tk.DISABLED, borderwidth=5,
+        win.geometry("800x300")
+        textbox = tk.Text(win, width=60, height=11, state=tk.DISABLED, borderwidth=5,
                           wrap="word", font=("Courier New", 14), fg=BLACK, bg=LightCyan)
         textbox.pack()
 
@@ -582,12 +612,12 @@ class PlaneCanvas(tk.Canvas):
         textbox.config(state=tk.DISABLED)
 
         text = "Искомое минимальное значение угла между прямой,\n" \
-               "соединяющей точки пересечения высот 2-х треугольников:\n"
+               "соединяющей точки пересечения высот 2-х треугольников, и осью абсцисс:\n"
         textbox.config(state=tk.NORMAL)
         textbox.insert("8.0", text)
         textbox.config(state=tk.DISABLED)
 
         text = f"angle = {round(self.task.save_min_ang, 3)} градуса"
         textbox.config(state=tk.NORMAL)
-        textbox.insert("10.0", text)
+        textbox.insert("11.0", text)
         textbox.config(state=tk.DISABLED)
