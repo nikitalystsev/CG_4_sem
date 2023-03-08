@@ -166,9 +166,9 @@ class PlaneCanvas(tk.Canvas):
                 self.create_text(self.width // 2 + 14, self.height - y, text=text_up)
         # Рисуем оси координат
         # ось ординат
-        self.create_line(self.width / 2, self.height, self.width / 2, 0, width=2, arrow="last", fill="black")
+        self.create_line(self.width / 2, self.height, self.width / 2, 0, width=2, arrow="last", fill=BLACK)
         # ось абсцисс
-        self.create_line(0, self.height / 2, self.width, self.height / 2, width=2, arrow="last", fill="black")
+        self.create_line(0, self.height / 2, self.width, self.height / 2, width=2, arrow="last", fill=BLACK)
 
     def to_origin_x(self, canvas_x: float) -> float:
         """
@@ -256,7 +256,7 @@ class PlaneCanvas(tk.Canvas):
             text = f"{i + 1}.({round(point.x, 2)};{round(point.y, 2)})"
             self.create_point(canvas_x, canvas_y, color=color)
             self.create_text(canvas_x + 5, canvas_y - 10, text=text,
-                             fill=color, font=("Courier New", 5))
+                             fill=color, font=("Courier New", 7))
 
     def draw_set_points(self) -> None:
         """
@@ -420,7 +420,7 @@ class PlaneCanvas(tk.Canvas):
         self.draw_height(tri, 2, canvas_ph, color)
         self.draw_height(tri, 3, canvas_ph, color)
 
-    def get_solve(self):
+    def get_solve(self) -> None:
         """
         Метод находит решение задачи
         :return: количество рассмотренных вариантов
@@ -452,8 +452,6 @@ class PlaneCanvas(tk.Canvas):
                     self.task.save_min_ang = angle
                     self.task.save_tri1, self.task.save_tri2 = tri1, tri2
                     self.task.save_ph1, self.task.save_ph2 = ph1, ph2
-
-        return
 
     def error_processing(self) -> bool:
         """
@@ -516,12 +514,11 @@ class PlaneCanvas(tk.Canvas):
 
         return True
 
-    def draw_solve(self):
+    def draw_solve(self) -> None:
         """
         Функция отображает найденное перебором решение
         :return:
         """
-
         if not self.error_processing():
             return
 
@@ -564,7 +561,7 @@ class PlaneCanvas(tk.Canvas):
         win.grab_set()
         win.geometry("800x300")
         textbox = tk.Text(win, width=60, height=11, state=tk.DISABLED, borderwidth=5,
-                          wrap="word", font=("Courier New", 14), fg=BLACK, bg=LightCyan)
+                          wrap="word", font=("Courier New", 14), fg=BLACK, bg=Aquamarine)
         textbox.pack()
 
         text = f"Всего было рассмотрено {self.task.save_count} вариантов\n"

@@ -122,14 +122,15 @@ class MyWindow(tk.Tk):
 
         self.columns = "number", "point"
 
-        frame_sets = tk.Frame(self, bg="#800080")
+        # Создал фреймы для таблицы с точками обоих множеств
+        # -----------------------------------------------
+        frame_sets = tk.Frame(self)
         frame_sets.pack()
-
-        self.frame_set1 = tk.Frame(frame_sets, bg="#FF0000")
+        self.frame_set1 = tk.Frame(frame_sets)
         self.frame_set1.pack(side=tk.LEFT, fill=tk.Y)
-
-        self.frame_set2 = tk.Frame(frame_sets, bg="#FF0000")
+        self.frame_set2 = tk.Frame(frame_sets)
         self.frame_set2.pack(side=tk.RIGHT)
+        # -----------------------------------------------
 
         self.listpoints_set1 = self.draw_listpoints(self.frame_set1)
         self.listpoints_set1.pack(side=tk.LEFT, fill=tk.Y)
@@ -144,18 +145,21 @@ class MyWindow(tk.Tk):
 
         # виджеты доп. кнопок
         # -----------------------------------------------
+
+        # Создал фрейм для доп. кнопок
+        # -----------------------------------------------
         frame_tasks = self.create_frame_widgets()
         frame_tasks.pack()
+        # -----------------------------------------------
 
         self.btn_task = tk.Button(frame_tasks, text="Условие задачи", font=("Courier New", 12),
-                                  relief=tk.RAISED, bg="#FFFFFF")
+                                  relief=tk.RAISED, bg=WHITE)
         self.btn_task.config(command=lambda: MyWindow.print_task())
         self.btn_task.grid(row=0, column=0, columnspan=4, sticky='wens')
 
         self.btn_print_res = tk.Button(frame_tasks, text="Вывести результаты", font=("Courier New", 12),
-                                       relief=tk.RAISED, bg="#FFFFFF", command=lambda: self.plane.draw_solve())
+                                       relief=tk.RAISED, bg=WHITE, command=lambda: self.plane.draw_solve())
         self.btn_print_res.grid(row=1, column=0, columnspan=4, sticky='wens')
-
         # -----------------------------------------------
 
     def create_frame_plane(self) -> tk.Frame:
@@ -253,7 +257,7 @@ class MyWindow(tk.Tk):
             relief=tk.RAISED
         )
 
-        button.config(bg="#FFFFFF")
+        button.config(bg=WHITE)
 
         return button
 

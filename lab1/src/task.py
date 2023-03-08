@@ -1,4 +1,4 @@
-import math
+import math as m
 
 EPS = 1e-9
 
@@ -84,7 +84,7 @@ class Task:
     @staticmethod
     def get_coef_side(point1: Point, point2: Point) -> (float, float, float):
         """
-        Метод позволяет определить коэффициенты стороны треугольника,
+        Метод позволяет определить коэффициенты уравнения стороны треугольника,
         к которой перпендикулярна высота используя соотношение 7
         :param point1: первая точка
         :param point2: вторая точка
@@ -166,17 +166,17 @@ class Task:
         a1, b1, c1 = line1
         a2, b2, c2 = line2
 
-        if abs(a1 * a2 - b1 * b2) < EPS:
+        if m.fabs(a1 * a2 - b1 * b2) < EPS:
             return 90
 
         tg_w = (a1 * b2 - a2 * b1) / (a1 * a2 - b1 * b2)
 
-        angle = math.atan(tg_w)
-        angle_degrees = math.degrees(angle)
+        angle = m.atan(tg_w)
+        angle_degrees = m.degrees(angle)
 
         if angle_degrees < 0:
             angle_degrees += 180
-        elif abs(angle_degrees) < EPS:
+        elif m.fabs(angle_degrees) < EPS:
             angle_degrees = 0
 
         return angle_degrees

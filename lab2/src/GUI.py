@@ -8,7 +8,7 @@ class MyWindow(tk.Tk):
     """
     Интерфейс программы
     """
-
+    
     def __init__(self):
         """
         Инициализация атрибутов класса
@@ -374,7 +374,7 @@ class MyWindow(tk.Tk):
                                    "Пожалуйста, попробуйте снова.")
             return
 
-        rot_xc, rot_yc, angle = map(float, rot_xc, rot_yc, angle)
+        rot_xc, rot_yc, angle = map(float, [rot_xc, rot_yc, angle])
 
         center_rotate = Point(x=rot_xc, y=rot_yc)
 
@@ -394,7 +394,7 @@ class MyWindow(tk.Tk):
                                    "Пожалуйста, попробуйте снова.")
             return
 
-        dx, dy = map(float, dx, dy)
+        dx, dy = map(float, [dx, dy])
 
         self.plane.transfer_figure(dx, dy)
         self.get_center_figure()
@@ -420,7 +420,7 @@ class MyWindow(tk.Tk):
                                    "Пожалуйста, попробуйте снова.")
             return
 
-        kx, ky, xc, yc = map(float, kx, ky, xc, yc)
+        kx, ky, xc, yc = map(float, [kx, ky, xc, yc])
 
         self.plane.scaling_figure(kx, ky, xc, yc)
         self.get_center_figure()
@@ -449,7 +449,7 @@ class MyWindow(tk.Tk):
                                    "Пожалуйста, попробуйте снова.")
             return
 
-        a, b, xc_ellipse, yc_ellipse, x_inters = map(float, a, b, xc_ellipse, yc_ellipse, x_inters)
+        a, b, xc_ellipse, yc_ellipse, x_inters = map(float, [a, b, xc_ellipse, yc_ellipse, x_inters])
         self.plane.change_param_figure(a, b, xc_ellipse, yc_ellipse, x_inters)
         self.get_center_figure()
 

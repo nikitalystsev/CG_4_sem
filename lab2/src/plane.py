@@ -143,6 +143,11 @@ class PlaneCanvas(tk.Canvas):
                          self.to_canvas_x(self.figure.point2.x),
                          self.to_canvas_y(self.figure.point2.y), width=3, fill=DARKCYAN)
 
+        self.create_line(self.to_canvas_x(self.figure.point1.x),
+                         self.to_canvas_y(self.figure.point1.y),
+                         self.to_canvas_x(self.figure.point2.x),
+                         self.to_canvas_y(self.figure.point2.y), width=3, fill=DARKCYAN)
+
     def draw_figure(self):
         """
         Метод рисует фигуру
