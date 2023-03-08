@@ -85,9 +85,9 @@ class PlaneCanvas(tk.Canvas):
                 self.create_text(self.width // 2 + 14, self.height - y, text=text_up)
         # Рисуем оси координат
         # ось ординат
-        self.create_line(self.width / 2, self.height, self.width / 2, 0, width=2, arrow="last", fill="black")
+        self.create_line(self.width / 2, self.height, self.width / 2, 0, width=2, arrow="last", fill=BLACK)
         # ось абсцисс
-        self.create_line(0, self.height / 2, self.width, self.height / 2, width=2, arrow="last", fill="black")
+        self.create_line(0, self.height / 2, self.width, self.height / 2, width=2, arrow="last", fill=BLACK)
 
     def get_km(self) -> float:
         """
@@ -210,10 +210,14 @@ class PlaneCanvas(tk.Canvas):
         """
         Метод возвращает предыдущее состояние фигуры
         """
+        if len(self.history.state_history) == 0:
+            text = "Фигура в своем первоначальном состоянии!\n"
+            messagebox.showinfo("", text)
+            return
+
         self.delete(tk.ALL)
         self.draw_grid()
-        if len(self.history.state_history) != 0:
-            self.figure = self.history.state_history.pop()
+        self.figure = self.history.state_history.pop()
         self.draw_figure()
 
     def change_param_figure(self, a: float, b: float, xc_ellipse: float,
@@ -221,11 +225,15 @@ class PlaneCanvas(tk.Canvas):
         """
         Метод изменяет параметры фигуры
         """
+
         if len(self.history.state_history) > 1:
             text = "Изменить параметры фигуры можно лишь для изначально" \
                    "заданного изображения фигуры!"
             messagebox.showwarning("", text)
             return
+
+        # добавил состояние в историю состояний
+        self.history.add_state(self.figure)
 
         self.figure.a = a
         self.figure.b = b

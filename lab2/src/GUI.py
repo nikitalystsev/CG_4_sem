@@ -193,14 +193,16 @@ class MyWindow(tk.Tk):
         self.btn_change_param_figure.grid(row=18, column=0, columnspan=4, sticky='wens')
         # -----------------------------------------------
 
+        # виджеты отображения центральной точки фигуры
+        # -----------------------------------------------
         self.lbl_param_figure = self.draw_label("Центральная точка фигуры")
         self.lbl_param_figure.config(font=("Courier New", 14, 'bold', "underline"))
         self.lbl_param_figure.grid(row=19, column=0, columnspan=4, sticky='wens')
 
         self.text_varx, self.text_vary = tk.StringVar(), tk.StringVar()
 
-        self.text_varx.set(f"X: {round(self.plane.figure.center_figure.x, 2)}")
-        self.text_vary.set(f"Y: {round(self.plane.figure.center_figure.y, 2)}")
+        self.text_varx.set(f"X: {self.plane.figure.center_figure.x: .2f}")
+        self.text_vary.set(f"Y: {self.plane.figure.center_figure.y: .2f}")
 
         self.lbl_center_x = self.draw_label("")
         self.lbl_center_x.config(textvariable=self.text_varx)
@@ -209,6 +211,7 @@ class MyWindow(tk.Tk):
         self.lbl_center_y = self.draw_label("")
         self.lbl_center_y.config(textvariable=self.text_vary)
         self.lbl_center_y.grid(row=20, column=2, columnspan=2, sticky='wens')
+        # -----------------------------------------------
 
         self.btn_task = self.draw_button("Условие задачи")
         self.btn_task.config(command=lambda: self.print_task())
@@ -311,7 +314,7 @@ class MyWindow(tk.Tk):
             relief=tk.RAISED
         )
 
-        button.config(bg="#FFFFFF")
+        button.config(bg=WHITE)
 
         return button
 
@@ -458,8 +461,8 @@ class MyWindow(tk.Tk):
         Метод получает центр фигуры для вывода
         """
         point_center = self.plane.figure.get_center_figure()
-        self.text_varx.set(f"X: {round(point_center.x, 2)}")
-        self.text_vary.set(f"y: {round(point_center.y, 2)}")
+        self.text_varx.set(f"X: {point_center.x: .2f}")
+        self.text_vary.set(f"y: {point_center.y: .2f}")
 
     @staticmethod
     def about_transfer():
